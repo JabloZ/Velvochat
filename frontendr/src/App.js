@@ -6,6 +6,7 @@ function App() {
     <div className="App">
       <NavBar></NavBar>
       <SideBar></SideBar>
+      <ChatDisplay></ChatDisplay>
     </div>
   );
 }
@@ -116,6 +117,43 @@ function SocialDisplay(){
     <div className="Socialdisplay">
      <div className='square' ><div className="imageinsquare"></div></div><p style={{fontSize:'14px'}}>your friend<p1 style={onlinestyle}>35min ago</p1></p><p style={{textAlign:'left', fontSize:'12px'}}>X: Maybe</p>
       
+    </div>
+  )
+}
+
+function ChatDisplay(){
+  const downbarStyle={
+    maxHeight:'10vh',
+    backgroundColor:'#353c55'
+  }
+  return(
+    <div className='chatdiv'>
+      <div className='chatAssist'>
+        <div className='chatOpened'>
+          <div className='chatNavbar' style={downbarStyle}>
+            <div className='usimContainer' >
+              <div className='square' >
+                <div className="imageinsquare">
+                </div>
+              </div><p>Chatting with: 'username' </p></div>
+              <div className='chatRight'>
+                <a href="#" style={{backgroundColor:'#a1a8b3'}}>Settings</a>
+                <a href="#" style={{backgroundColor:'#a01c1c'}}>Exit</a>
+              </div>
+          </div>
+          <div className='chatInside'>
+            <div></div>
+          </div>
+          <div className='chatDownbar' style={downbarStyle}>
+            
+            <form>
+              
+              <div className='chatInputHolder'><textarea style={{resize:'none', fontSize:'14px'}}id="msg" name="msg" rows="5" cols="50"></textarea><button className='sendMessageButton'>Send</button></div>
+          
+            </form>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

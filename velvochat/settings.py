@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'chatapp',
-    'rest_framework'
+    'rest_framework',
+    'bootstrap5'
 ]
 
 MIDDLEWARE = [
