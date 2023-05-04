@@ -228,7 +228,7 @@ body{
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-direction: row;
+  flex-direction: column;
   min-width: 80%;
   flex: 1;
   background-color: #282c34;
@@ -248,11 +248,14 @@ body{
   min-width: 8vw;
   padding: 12px 20px;
   border: none;
-  background-color: #b7c8e5;
+  background-color: #81a2db;
+  border: 1px solid #475d85;
+
   
 }
 
 textarea {
+  border: 1px solid #475d85;
   font-size: 10px;
   width: 100%;
   padding: 11px 20px;
@@ -263,7 +266,7 @@ textarea {
   outline: none;
   min-height: 8vh;
   max-height: 8vh;
-  border:none;
+  border: 1px solid #475d85
 }
 
 .chatRight{
@@ -281,4 +284,15 @@ textarea {
 a{
   color:white !important;
   text-decoration: none !important;
+}
+.message{
+
+  padding: 24px;
+  margin:24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100px;
+  max-width: 50%;
+  background-color: #888;
 }

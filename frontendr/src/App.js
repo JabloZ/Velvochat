@@ -142,18 +142,26 @@ function ChatDisplay(){
               </div>
           </div>
           <div className='chatInside'>
-            <div></div>
+            <ChatMessage messageText='Yeah i would like'></ChatMessage>
+            <ChatMessage messageText='nie mam juz nic do oddania'></ChatMessage>
           </div>
           <div className='chatDownbar' style={downbarStyle}>
-            
             <form>
-              
               <div className='chatInputHolder'><textarea style={{resize:'none', fontSize:'14px'}}id="msg" name="msg" rows="5" cols="50"></textarea><button className='sendMessageButton'>Send</button></div>
-          
             </form>
           </div>
         </div>
       </div>
+    </div>
+  )
+}
+function ChatMessage(props){
+  console.log(props.messageText)
+  return(
+    <div className='message'>
+      
+        <p>{props.messageText}</p>
+      
     </div>
   )
 }
