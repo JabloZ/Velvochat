@@ -1,0 +1,109 @@
+.CentralDiv{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    max-height: 100vh;
+    min-height: 100vh;
+    
+}
+
+.LoginDiv{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: rgb(253, 253, 253);
+    
+    
+    min-width: 30%;
+    
+}
+
+.LoginDiv input[type=text] {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    border:1px solid black;
+    transition: width 0.4s ease-in-out;
+  }
+label{
+    min-width: 100%;
+}
+.form-group{
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    
+    flex-direction: column;
+
+}
+.LoginDiv button{
+    color:white;
+    background-color: rgb(37, 141, 189);
+    padding: 12px;
+    min-width: 100%;
+    
+    
+    
+}
+.LoginDiv button:hover{
+    background-color: rgb(81, 184, 197);
+    transition: 0.6s;
+}
+
+input[type=text]:focus {
+    border: 1px solid rgb(81, 184, 197);
+    
+  }
+.login-top{
+    min-width: 100%;
+    margin-bottom: 12px;
+    background-color: rgb(173, 195, 221);
+}
+h1{
+    color:white;
+    background-color: rgb(37, 141, 189);
+}
+.input-holder{
+    
+    min-width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.input-holder button{
+    color: white;
+    background-color: rgb(37, 141, 189);
+    box-sizing: border-box;
+    min-width: 18%;
+    margin-top: 0;
+    border: 1px solid black;
+    
+}
+.login-button{
+    padding:12px;
+}
+
+.login-button-holder{
+    padding: 12px 0px;
+    min-width: 100%;
+    
+}
+.LoginDiv a{
+    text-decoration: none;
+    font-size: 18px;
+    color: rgb(63, 173, 236) !important;
+}
+.sample-acc{
+    padding: 12px;
+    margin-bottom: 12px;
+}
+.sample-acc a{
+    font-size: 20px;
+    color: rgb(82, 195, 199) !important;
+    
+}
+.LoginDiv p{
+    margin-bottom: 0.2rem;
+}
