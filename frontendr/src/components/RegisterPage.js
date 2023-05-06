@@ -1,6 +1,48 @@
 import './RegisterPage.css'
+import React from 'react';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+
+
+
+axios.defaults.xsrfCookieName = 'csrftoken';
+axios.defaults.xsrfHeaderName = 'X-CSRFToken';
+axios.defaults.withCredentials = true;
+
+const client = axios.create({
+  baseURL: "http://127.0.0.1:8000"
+});
+
 
 function RegisterPage(){
+    const [currentUser, setCurrentUser] = useState();
+    const [registrationToggle, setRegistrationToggle] = useState(false);
+    const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    
+    function submitRegistration(e) {
+        e.preventDefault();
+        client.post(
+          "/register",
+          {
+            email: email,
+            username: username,
+            password: password
+          }
+        ).then(function(res) {
+          client.post(
+            "/login",
+            {
+              email: email,
+              password: password
+            }
+          ).then(function(res) {
+            setCurrentUser(true);
+          });
+        });
+      }
+
     return(
         <div className="CentralDiv">
         <div className="LoginDiv">
@@ -8,24 +50,21 @@ function RegisterPage(){
                 <h1 style={{padding:'16px', textAlign:'center'}}>Register</h1>
             </div>
 
-            <form style={{minWidth:'80%', padding:'12px'}}>
+            <form style={{minWidth:'80%', padding:'12px'}} onSubmit={e => submitRegistration(e)}>
                 <div className="form-group">
                     
                     <div className="input-holder">
-                        <button>👤</button><input type="text" id="fname" name="fname" placeholder="Username"/>
+                        <button>👤</button><input type="text" id="fname" name="fname" value={username} placeholder="Username"/>
                     </div>
                     <div className="input-holder">
-                        <button>✉️</button><input type="text" id="fname" name="fname" placeholder="E-mail"/>
-                    </div>
-                    <div className="input-holder">
-                    
-                        <button>🔒</button><input type="text" id="lname" name="lname" placeholder="Password"/>
+                        <button>✉️</button><input type="text" id="fname" name="fname" value={email} placeholder="E-mail"/>
                     </div>
                     <div className="input-holder">
                     
-                        <button>🔒</button><input type="text" id="lname" name="lname" placeholder="Confirm Password"/>
+                        <button>🔒</button><input type="text" id="lname" name="lname" value={password} placeholder="Password"/>
                     </div>
-                    <div className="login-button-holder"><button className="login-button">Create Account</button></div>
+                    
+                    <div className="login-button-holder"><button className="login-button" type="submit">Create Account</button></div>
                 </div>
                 
             </form>
