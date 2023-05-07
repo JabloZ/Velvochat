@@ -23,8 +23,9 @@ function RegisterPage(){
     
     function submitRegistration(e) {
         e.preventDefault();
+        
         client.post(
-          "/register",
+          "accounts/register",
           {
             email: email,
             username: username,
@@ -32,7 +33,7 @@ function RegisterPage(){
           }
         ).then(function(res) {
           client.post(
-            "/login",
+            "accounts/login",
             {
               email: email,
               password: password
@@ -54,14 +55,14 @@ function RegisterPage(){
                 <div className="form-group">
                     
                     <div className="input-holder">
-                        <button>👤</button><input type="text" id="fname" name="fname" value={username} placeholder="Username"/>
+                        <button>👤</button><input type="username" id="fname" name="username" placeholder="Username" value={username} onChange={e => setUsername(e.target.value)}/>
                     </div>
                     <div className="input-holder">
-                        <button>✉️</button><input type="text" id="fname" name="fname" value={email} placeholder="E-mail"/>
+                        <button>✉️</button><input type="email" id="fname" name="email" placeholder="E-mail" value={email} onChange={e => setEmail(e.target.value)}/>
                     </div>
                     <div className="input-holder">
                     
-                        <button>🔒</button><input type="text" id="lname" name="lname" value={password} placeholder="Password"/>
+                        <button>🔒</button><input type="password" id="lname" name="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)}/>
                     </div>
                     
                     <div className="login-button-holder"><button className="login-button" type="submit">Create Account</button></div>
