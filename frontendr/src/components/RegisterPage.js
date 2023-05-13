@@ -2,7 +2,7 @@ import './RegisterPage.css'
 import React from 'react';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-
+import {Route, useNavigate } from "react-router-dom";
 
 
 axios.defaults.xsrfCookieName = 'csrftoken';
@@ -15,6 +15,7 @@ const client = axios.create({
 
 
 function RegisterPage(){
+    const navigate = useNavigate();
     const [currentUser, setCurrentUser] = useState();
     const [registrationToggle, setRegistrationToggle] = useState(false);
     const [email, setEmail] = useState('');
@@ -22,6 +23,7 @@ function RegisterPage(){
     const [password, setPassword] = useState('');
     
     function submitRegistration(e) {
+        
         e.preventDefault();
         
         client.post(
@@ -39,6 +41,8 @@ function RegisterPage(){
               password: password
             }
           ).then(function(res) {
+            
+            navigate("/");
             setCurrentUser(true);
           });
         });

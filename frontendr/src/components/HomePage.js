@@ -1,15 +1,38 @@
-import React, {Component} from "react";
+import React, {Component, useState} from "react";
 import './HomePage.css';
 function HomePage(){
+    const [username, setUsername]=useState('')
+
+    CheckLoggedIn().then(function myfunc(DB){
+      
+      setUsername(DB.username)
+      const username=DB.username
+      return username
+    })
+
     return (
+      
       <div className="App">
-        <NavBar></NavBar>
+        <NavBar LoggedUserUsername={username}></NavBar>
         <SideBar></SideBar>
         <ChatDisplay></ChatDisplay>
+        
       </div>
     )
   }
-  function NavBar() {
+  function CheckLoggedIn(){
+    return fetch("accounts/user").then(response =>
+      response.json().then((data) => {
+        const DB=data.user
+        setUsername(DB.username)
+        return DB;
+        
+      }
+    ));
+  }
+    
+          
+  function NavBar(props) {
     const leftstyle={
       float:"left",
       display:"flex",
@@ -31,7 +54,7 @@ function HomePage(){
         
       </div>
       <div className='navbar-inner'>
-        <a href="#" style={leftstyle} >👤<p style={minimalFont}>Profile</p></a>
+        <a href="#" style={leftstyle} >👤<p style={minimalFont}>{props.LoggedUserUsername}</p></a>
         <a href="#" style={leftstyle} >✉️<p style={minimalFont}>Notifications</p></a>
         <a href="#" style={leftstyle} >💬<p style={minimalFont}>Chats</p></a>
         <a href="#" style={leftstyle} >⚙️<p style={minimalFont}>Settings</p></a>

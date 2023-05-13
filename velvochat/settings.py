@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'bootstrap5',
     'accounts',
+    'rest_framework.authtoken'
 ]
 
 MIDDLEWARE = [
