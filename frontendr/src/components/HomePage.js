@@ -1,6 +1,8 @@
 import React, {Component, useState} from "react";
 import './HomePage.css';
-function HomePage(){
+import Dropdown from 'react-bootstrap/Dropdown';
+  function HomePage(){
+    /*
     const [username, setUsername]=useState('')
 
     CheckLoggedIn().then(function myfunc(DB){
@@ -9,17 +11,19 @@ function HomePage(){
       const username=DB.username
       return username
     })
+    */
 
     return (
       
       <div className="App">
-        <NavBar LoggedUserUsername={username}></NavBar>
+        <NavBar LoggedUserUsername={'username'}></NavBar>
         <SideBar></SideBar>
         <ChatDisplay></ChatDisplay>
         
       </div>
     )
   }
+  /*
   function CheckLoggedIn(){
     return fetch("accounts/user").then(response =>
       response.json().then((data) => {
@@ -30,7 +34,8 @@ function HomePage(){
       }
     ));
   }
-    
+  */
+
           
   function NavBar(props) {
     const leftstyle={
@@ -57,7 +62,18 @@ function HomePage(){
         <a href="#" style={leftstyle} >👤<p style={minimalFont}>{props.LoggedUserUsername}</p></a>
         <a href="#" style={leftstyle} >✉️<p style={minimalFont}>Notifications</p></a>
         <a href="#" style={leftstyle} >💬<p style={minimalFont}>Chats</p></a>
-        <a href="#" style={leftstyle} >⚙️<p style={minimalFont}>Settings</p></a>
+        
+        <Dropdown>
+        <Dropdown.Toggle variant="success" id="dropdown-basic" className="dropdown-button-style">
+          ...
+        </Dropdown.Toggle>
+
+        <Dropdown.Menu className="Dropdown-items-holder">
+          <Dropdown.Item href="#">Help and FAQ</Dropdown.Item>
+          <Dropdown.Item href="#">Settings</Dropdown.Item>
+          <Dropdown.Item href="#">Logout</Dropdown.Item>
+        </Dropdown.Menu>
+      </Dropdown>
       </div>
     </nav>
     )
