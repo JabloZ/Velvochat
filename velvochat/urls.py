@@ -19,16 +19,18 @@ from django.conf import settings
 from django.conf.urls.static import static
 from . import settings
 from . import views
+from accounts.views import ProfileView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('chatapp.urls')),
-
-    path('accounts/', include("accounts.urls")),
     
+    path('accounts/', include("accounts.urls")),
     path('',views.index, name='index'),
     path('login',views.index, name='index'),
-    path('register',views.index, name='index')
+    path('register',views.index, name='index'),
+    path('settings',views.index, name='index'),
+    path('profile/<str:username>/', views.index, name='index'),
+    
 
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

@@ -10,16 +10,23 @@ Redirect,
 import HomePage from './components/HomePage';
 import LoginPage from './components/LoginPage'
 import RegisterPage from './components/RegisterPage';
+import SettingsPage from './components/SettingsPage';
+import ProfilePage from './components/ProfilePage';
+import { useState } from 'react';
+
+function App(props) {
+  console.log(props,'props')
+  
 
 
-
-function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" Component={HomePage}></Route>
         <Route path="/login" Component={LoginPage}></Route>
         <Route path="/register" Component={RegisterPage}></Route>
+        <Route path="/settings" Component={SettingsPage}></Route>
+        <Route path="/profile/:username" Component={ProfilePage}></Route>
       </Routes>
     </Router>
 

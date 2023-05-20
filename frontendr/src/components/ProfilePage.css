@@ -1,0 +1,109 @@
+.CentralDiv{
+    
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    max-height: 100vh;
+    min-height: 100vh;
+    
+}
+.ProfileOverlay{
+    
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: azure;
+    min-width: 50%;
+    max-width: 60%;
+    word-break: break-word;
+}
+.profile-middle{
+    min-width: 100%;
+    padding:12px;
+
+    color:black;
+    justify-content: flex-start;
+}
+.profile-middle a{
+    justify-content: flex-start;
+    color:black !important;
+}
+.profile-bottom{
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    
+    border-top:1px solid rgb(80, 106, 153);
+}
+.profile-bottom p{
+    
+    padding:24px;
+}
+.profile-top{
+    margin:12px;
+    padding:12px;
+    display: flex;
+    justify-content: space-evenly;
+    background-color: rgb(72, 108, 150);
+    min-width: 100%;
+    
+    align-items: center;
+    min-height: 200px;
+
+}
+.profile-top p{
+    margin-bottom:16px;
+    margin-top:4px;
+    color:black;
+    font-size:20px
+}
+.profile-top h1{
+    line-height: 1.6;
+}
+img{
+    
+    border-radius: 100px;
+    background: rgb(59, 59, 59);
+    aspect-ratio: 1/1;
+    max-height: 90%;
+    max-width: 90%;
+    min-height: 90%;
+    min-width: 90%;
+}
+.img-div{
+    
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    aspect-ratio: 1/1;
+    max-height: 200px;
+    max-width: 200px;
+    min-height: 200px;
+    min-width: 200px;
+}
+.main-info-container{
+    padding: 24px;
+    padding-top: 0;
+    
+}
+.usernameShow{
+    font-size: 2rem;
+    line-height: 2;
+    background-color: inherit;
+}
+.friends-interaction{
+    line-height: 1.6;
+    background-color: aquamarine;
+    padding:12px;
+    margin-bottom: 4px;
+    margin-top: 4px;
+}
+.Bio-div{
+    max-width: 60%;
+    word-break: break-all;
+    margin: 6px;
+    margin-bottom: 18px;
+    border:1px solid rgb(64, 95, 121)
+}

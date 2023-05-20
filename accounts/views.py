@@ -4,10 +4,13 @@ from django.contrib.auth import get_user_model, login, logout
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .serializers import UserRegisterSerializer, UserLoginSerializer, UserSerializer
+from .serializers import UserRegisterSerializer, UserLoginSerializer, UserSerializer, ProfileSerializer
 from rest_framework import permissions, status
 from .validations import custom_validation, validate_email, validate_password, validate_username
-
+from django.contrib.auth.decorators import login_required
+from .models import Account
+from chatapp.models import Profile
+from django.shortcuts import get_object_or_404, Http404
 
 class UserRegister(APIView):
 	
@@ -40,7 +43,6 @@ class UserLogin(APIView):
 			login(request, user)
 			return Response(serializer.data, status=status.HTTP_200_OK)
 
-
 class UserLogout(APIView):
 	permission_classes = (permissions.AllowAny,)
 	authentication_classes = ()
@@ -49,13 +51,33 @@ class UserLogout(APIView):
 		logout(request)
 		return Response(status=status.HTTP_200_OK)
 
-
 class UserView(APIView):
+	
 	permission_classes = (permissions.IsAuthenticated,)
+	
 	authentication_classes = (SessionAuthentication,)
 	##
 	def get(self, request):
-		print(request.user)
 		serializer = UserSerializer(request.user)
-		print(serializer.data)
+		
 		return Response({'user': serializer.data}, status=status.HTTP_200_OK)
+	
+
+class ProfileView(APIView):
+
+	permission_classes = (permissions.IsAuthenticated,)
+	authentication_classes = (SessionAuthentication,)
+
+	def get(self, *args, **kwargs):
+		serializer=ProfileSerializer
+		username = self.kwargs.get("username")
+		if username is not None:
+			
+			user = get_object_or_404(Account, username=username)
+			obj = get_object_or_404(Profile, user=user)
+			serializer=ProfileSerializer(obj)
+			serializeuser=UserSerializer(user)
+			if obj == None:
+				raise Http404
+		self.check_object_permissions(self.request, obj)
+		return Response({'profile': serializer.data, 'user':serializeuser.data}, status=status.HTTP_200_OK)

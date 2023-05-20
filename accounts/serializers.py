@@ -1,8 +1,10 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model, authenticate
+from chatapp.models import Profile
 from django.core.exceptions import ValidationError
 
 UserModel=get_user_model()
+ProfileModel=Profile
 
 class UserRegisterSerializer(serializers.ModelSerializer):
     class Meta:
@@ -30,3 +32,8 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model=UserModel
         fields=('email','username')
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=ProfileModel
+        fields=('user','image','bio','friends')
