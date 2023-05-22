@@ -10,7 +10,7 @@ def upload_location_profile_image(instance, filename):
 class Profile(models.Model):
     user = models.OneToOneField(Account, null=True, on_delete=models.CASCADE)
     bio=models.TextField(max_length=300, blank=True, null=True)
-    friends=models.ManyToManyField(Account, related_name='friends', blank=True)
+    friends=models.ManyToManyField("self", related_name='profile_friends', blank=True, symmetrical=False)
     image=models.ImageField(upload_to=upload_location_profile_image, null=True, blank=True)
 
     def __str__(self):
@@ -39,6 +39,17 @@ class GroupChat(models.Model):
     def __str__(self):
         return str(str(self.name) + ' ' + str(self.id))
     
+class FriendsRequest(models.Model):
+    now=datetime.datetime.now()
+
+    
+    who_send=models.ForeignKey(Profile, null=True, on_delete=models.CASCADE, related_name='who_send')
+    who_received=models.ForeignKey(Profile, null=True, on_delete=models.CASCADE, related_name='who_received')
+
+    def __str__(self):
+        return str(self.who_send)+' wants '+str(self.who_received)
+
+
 def upload_location_groupchat_message(instance, filename):
     file_path='images/groups/{groupname}/{filename}'.format(groupname=str(instance.belongs_to.id), filename=filename)
     return str(file_path)

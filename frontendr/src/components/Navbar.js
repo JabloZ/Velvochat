@@ -14,7 +14,16 @@ const client = axios.create({
   baseURL: "http://127.0.0.1:8000"
 });
 
-function NavBar(props) {    
+function NavBar(props) {  
+    const [username, setUsername]=useState('')
+    CheckLoggedIn().then(function myfunc(DB){
+        
+      setUsername(DB.username)
+      const username=DB.username
+      
+      return username
+
+    })  
     const navigate = useNavigate();
     const leftstyle={
       float:"left",
@@ -42,6 +51,25 @@ function NavBar(props) {
     });
     
     }
+
+    function CheckLoggedIn(){
+      const navigate = useNavigate();
+      return fetch("/accounts/user").then(response =>
+        response.json().then((data) => {
+         
+          if (data.user==undefined){
+            navigate("/login")
+          }
+          const DB=data.user
+          
+          return DB;
+          
+        }
+      ));
+    }
+
+
+
     return(
     <nav className='navbar'>
       <div className='navbar-inner' >
@@ -52,8 +80,8 @@ function NavBar(props) {
         
       </div>
       <div className='navbar-inner'>
-        <a href={"/profile/"+props.LoggedUserUsername+'/'} style={leftstyle} >👤<p style={minimalFont}>{props.LoggedUserUsername}</p></a>
-        <a href="#" style={leftstyle} >✉️<p style={minimalFont}>Notifications</p></a>
+        <a href={"/profile/"+username+'/'} style={leftstyle} >👤<p style={minimalFont}>{username}</p></a>
+        <a href="#" style={leftstyle} >🔔<p style={minimalFont}>Notifications</p></a>
         <a href="#" style={leftstyle} >💬<p style={minimalFont}>Chats</p></a>
         
         <Dropdown>
@@ -62,11 +90,12 @@ function NavBar(props) {
         </Dropdown.Toggle>
 
         <Dropdown.Menu className="Dropdown-items-holder">
-          <Dropdown.Item href="#">Help and FAQ</Dropdown.Item>
-          <Dropdown.Item href="settings">Settings</Dropdown.Item>
-          <Dropdown.Item href="logout" onClick={e => submitLogout(e)}>
+          <Dropdown.Item href="#">📙 Help and FAQ</Dropdown.Item>
+          <Dropdown.Item href="#">👥Friends requests</Dropdown.Item>
+          <Dropdown.Item href="settings">⚙️ Settings</Dropdown.Item>
+          <Dropdown.Item href="logout" style={{border:'3px solid rgb(184 195 217)'}} className='form-class' onClick={e => submitLogout(e)}>
             <form onSubmit={e => submitLogout(e)}>
-                <button className="Button-form-logout" type="submit" variant="light">Log out</button>
+                <button className="Button-form-logout" type="submit" variant="light" style={{padding:'0px', backgroundColor:'inherit'}}>⬅ Log out</button>
             </form>
           </Dropdown.Item>
         </Dropdown.Menu>

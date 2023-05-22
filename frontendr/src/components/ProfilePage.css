@@ -14,7 +14,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    background-color: azure;
+    background-color: rgb(185, 215, 224);
     min-width: 50%;
     max-width: 60%;
     word-break: break-word;
@@ -24,11 +24,15 @@
     padding:12px;
 
     color:black;
-    justify-content: flex-start;
+    display: flex;
+    justify-content: center;
 }
 .profile-middle a{
     justify-content: flex-start;
     color:black !important;
+}
+.profile-middle p{
+    justify-content: center;
 }
 .profile-bottom{
     display: flex;
@@ -53,17 +57,20 @@
     min-height: 200px;
 
 }
-.profile-top p{
+.profile-top p, .profile-top a{
     margin-bottom:16px;
     margin-top:4px;
-    color:black;
-    font-size:20px
+    color:rgb(255, 255, 255);
+    font-size:20px;
+    
 }
+
 .profile-top h1{
-    line-height: 1.6;
+    
+    border-bottom:2px rgb(129, 222, 250) solid;
 }
 img{
-    
+    border: 2px solid rgb(86, 128, 206);
     border-radius: 100px;
     background: rgb(59, 59, 59);
     aspect-ratio: 1/1;
@@ -86,6 +93,7 @@ img{
 .main-info-container{
     padding: 24px;
     padding-top: 0;
+    background-color: rgb(65, 99, 138);
     
 }
 .usernameShow{
@@ -94,8 +102,10 @@ img{
     background-color: inherit;
 }
 .friends-interaction{
+    color:black!important;
     line-height: 1.6;
-    background-color: aquamarine;
+    border-radius: 8px;
+    background-color: rgb(80, 194, 202);
     padding:12px;
     margin-bottom: 4px;
     margin-top: 4px;

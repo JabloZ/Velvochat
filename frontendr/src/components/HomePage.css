@@ -37,8 +37,9 @@
     border: none;
     border-radius: 0;
     --bs-btn-active-bg: rgb(49, 60, 70);
-  }
 
+  }
+  
 
   .dropdown-button-style:hover{
     background-color: #444e63!important;
