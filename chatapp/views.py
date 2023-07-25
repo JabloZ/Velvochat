@@ -12,6 +12,7 @@ from .serializers import FriendsRequestSerializer
 import json
 from django.core.serializers.json import DjangoJSONEncoder
 from .validations import validate_request
+import datetime
 
 class FriendRequest(APIView):
     permission_classes = (permissions.AllowAny,)
@@ -76,3 +77,11 @@ class AddToFriends(APIView):
         print(serializer.errors)
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
+class AllRequests(APIView):
+    def get(self, request, *args, **kwargs):  
+        all_requests=FriendsRequest.objects.filter(who_received=request.user.profile)
+        
+
+        to_send=[{"username":x.who_send.user.username, "image":x.who_send.image.name, "date":datetime.datetime.strptime(str(x.date)[0:10], "%Y-%m-%d").strftime('%d/%m/%Y')} for x in all_requests]
+        
+        return Response({'requests_list':to_send}, status=status.HTTP_200_OK)

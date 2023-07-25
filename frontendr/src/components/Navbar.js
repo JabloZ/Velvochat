@@ -91,8 +91,8 @@ function NavBar(props) {
 
         <Dropdown.Menu className="Dropdown-items-holder">
           <Dropdown.Item href="#">📙 Help and FAQ</Dropdown.Item>
-          <Dropdown.Item href="#">👥Friends requests</Dropdown.Item>
-          <Dropdown.Item href="settings">⚙️ Settings</Dropdown.Item>
+          <Dropdown.Item href="/requests">👥Friends requests</Dropdown.Item>
+          <Dropdown.Item href="/settings">⚙️ Settings</Dropdown.Item>
           <Dropdown.Item href="logout" style={{border:'3px solid rgb(184 195 217)'}} className='form-class' onClick={e => submitLogout(e)}>
             <form onSubmit={e => submitLogout(e)}>
                 <button className="Button-form-logout" type="submit" variant="light" style={{padding:'0px', backgroundColor:'inherit'}}>⬅ Log out</button>

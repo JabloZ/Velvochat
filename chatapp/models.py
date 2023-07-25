@@ -44,6 +44,7 @@ class FriendsRequest(models.Model):
 
     who_send=models.ForeignKey(Profile, null=True, on_delete=models.CASCADE, related_name='who_send', blank=False)
     who_received=models.ForeignKey(Profile, null=True, on_delete=models.CASCADE, related_name='who_received', blank=False)
+    date=models.DateTimeField(auto_now_add=True, blank=True)
 
     def __str__(self):
         return str(self.who_send)+' wants '+str(self.who_received)

@@ -69,7 +69,7 @@ const client = axios.create({
           
         {props.UserFriends.map(item => (
           <div className='socCon'>
-            <SocialDisplay obj={item} key={item.username} social_name={item.username}/>
+            <SocialDisplay obj={item} key={item.username} social_name={item.username} social_picture={item.image}/>
           </div>
         ))} 
           
@@ -95,7 +95,7 @@ const client = axios.create({
     }
     return(
       <div className="Socialdisplay">
-       <div className='square' ><div className="imageinsquare"></div></div><p><a href={"/profile/"+props.social_name} style={{fontSize:'14px'}}>{props.social_name}</a><p1 style={onlinestyle}>35min ago</p1></p><p style={{textAlign:'left', fontSize:'12px'}}>X: Maybe</p>
+       <div className='square' ><a href={"/profile/"+props.social_name}><div className="imageinsquare"><img src={'http://127.0.0.1:8000/media/'+props.social_picture}></img></div></a></div><p><a href={"/profile/"+props.social_name} style={{fontSize:'14px'}}>{props.social_name}</a><p1 style={onlinestyle}>35min ago</p1></p><p style={{textAlign:'left', fontSize:'12px'}}>X: Maybe</p>
         
       </div>
     )

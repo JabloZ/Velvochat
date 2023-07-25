@@ -31,6 +31,7 @@ urlpatterns = [
     path('register',views.index, name='index'),
     path('settings',views.index, name='index'),
     path('profile/<str:username>/', views.index, name='index'),
+    path('requests', views.index, name='index')
     
 
 ]

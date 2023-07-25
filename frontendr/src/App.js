@@ -13,6 +13,8 @@ import LoginPage from './components/LoginPage'
 import RegisterPage from './components/RegisterPage';
 import SettingsPage from './components/SettingsPage';
 import ProfilePage from './components/ProfilePage';
+import RequestsPage from './components/RequestsPage';
+
 import axios from 'axios';
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux'
@@ -55,6 +57,7 @@ function App(props) {
         <Route path="/register" Component={RegisterPage}></Route>
         <Route path="/settings" Component={SettingsPage}></Route>
         <Route path="/profile/:username_prof" Component={() => (<ProfilePage loggedUser={loggedUser} loggedUserProfile={loggedUserProfile}/>)}></Route>
+        <Route path="/requests" Component={RequestsPage}></Route>
       </Routes>
     </Router>
 
