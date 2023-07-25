@@ -42,9 +42,8 @@ class GroupChat(models.Model):
 class FriendsRequest(models.Model):
     now=datetime.datetime.now()
 
-    
-    who_send=models.ForeignKey(Profile, null=True, on_delete=models.CASCADE, related_name='who_send')
-    who_received=models.ForeignKey(Profile, null=True, on_delete=models.CASCADE, related_name='who_received')
+    who_send=models.ForeignKey(Profile, null=True, on_delete=models.CASCADE, related_name='who_send', blank=False)
+    who_received=models.ForeignKey(Profile, null=True, on_delete=models.CASCADE, related_name='who_received', blank=False)
 
     def __str__(self):
         return str(self.who_send)+' wants '+str(self.who_received)

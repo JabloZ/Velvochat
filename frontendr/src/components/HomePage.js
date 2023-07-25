@@ -15,47 +15,26 @@ const client = axios.create({
   baseURL: "http://127.0.0.1:8000"
 });
 
-  function HomePage(){
-    const [username, setUsername]=useState('')
-    CheckLoggedIn().then(function myfunc(DB){
-      
-      setUsername(DB.username)
-      const username=DB.username
-      console.log(username,'fasfasfas')
-      return username
+  function HomePage(props){
 
-    })
-    
-    
+    const DB=props.loggedUser
+    const UP=props.loggedUserProfile
+    const username=DB.username
+    const friends=UP.friends
     return (
       
       <div className="App">
         <NavBar LoggedUserUsername={username}></NavBar>
-        <SideBar></SideBar>
+        <SideBar UserFriends={friends}></SideBar>
         <ChatDisplay></ChatDisplay>
         
       </div>
     )
   }
   
-  function CheckLoggedIn(){
-    const navigate = useNavigate();
-    return fetch("accounts/user").then(response =>
-      response.json().then((data) => {
-        console.log(data.user,'fasasgagasg')
-        if (data.user==undefined){
-          navigate("/login")
-        }
-        const DB=data.user
-        
-        return DB;
-        
-      }
-    ));
-  }
   
   
-  function SideBar() {
+  function SideBar(props) {
   
     const friendsstyle={
       
@@ -73,56 +52,41 @@ const client = axios.create({
       
       minHeight:'100%'
     }
+    
+
+    if (props.UserFriends!=undefined){
+      console.log(props.UserFriends,'fas')
     return(
+    
     <nav className="sidebar">
   
       <div className="socialBar" style={friendsstyle}>
         
         <h4 style={{color:"white"}}>Friends</h4>
         <div className='friendscontainer' style={socialcontainer}>
+          
+          
+          
+        {props.UserFriends.map(item => (
           <div className='socCon'>
-            <SocialDisplay></SocialDisplay>
+            <SocialDisplay obj={item} key={item.username} social_name={item.username}/>
           </div>
-          <div className='socCon'>
-            <SocialDisplay></SocialDisplay>
-          </div>
-          <div className='socCon'>
-            <SocialDisplay></SocialDisplay>
-          </div>
-          <div className='socCon'>
-            <SocialDisplay></SocialDisplay>
-          </div>
-          <div className='socCon'>
-            <SocialDisplay></SocialDisplay>
-          </div>
-          <div className='socCon'>
-            <SocialDisplay></SocialDisplay>
-          </div>
+        ))} 
+          
         </div>
       </div>
       <div className="socialBar" style={groupsstyle}>
       <h4 style={{color:"white"}}>Groups</h4>
       <div className='friendscontainer' style={socialcontainer}>
-          <div className='socCon'>
-            <SocialDisplay></SocialDisplay>
-          </div>
-          <div className='socCon'>
-            <SocialDisplay></SocialDisplay>
-          </div>
-          <div className='socCon'>
-            <SocialDisplay></SocialDisplay>
-          </div>
-          <div className='socCon'>
-            <SocialDisplay></SocialDisplay>
-          </div>
+          
           
         </div>
       </div>
     </nav>
     )
-  }
+  }}
   
-  function SocialDisplay(){
+  function SocialDisplay(props){
     const onlinestyle={
       color:'#888888',
       fontSize:'10px',
@@ -131,7 +95,7 @@ const client = axios.create({
     }
     return(
       <div className="Socialdisplay">
-       <div className='square' ><div className="imageinsquare"></div></div><p style={{fontSize:'14px'}}>your friend<p1 style={onlinestyle}>35min ago</p1></p><p style={{textAlign:'left', fontSize:'12px'}}>X: Maybe</p>
+       <div className='square' ><div className="imageinsquare"></div></div><p><a href={"/profile/"+props.social_name} style={{fontSize:'14px'}}>{props.social_name}</a><p1 style={onlinestyle}>35min ago</p1></p><p style={{textAlign:'left', fontSize:'12px'}}>X: Maybe</p>
         
       </div>
     )

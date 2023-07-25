@@ -1,10 +1,11 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model, authenticate
-from chatapp.models import Profile
+from chatapp.models import Profile, FriendsRequest
 from django.core.exceptions import ValidationError
 
 UserModel=get_user_model()
 ProfileModel=Profile
+FriendsRequestModel=FriendsRequest
 
 class UserRegisterSerializer(serializers.ModelSerializer):
     class Meta:
@@ -37,3 +38,4 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model=ProfileModel
         fields=('user','image','bio','friends', 'id')
+

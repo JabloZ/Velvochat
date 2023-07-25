@@ -40,15 +40,17 @@ function App(props) {
     }
   function getProfile(){
     
+    if (loggedUser.username!=undefined){
     return axios.get("http://127.0.0.1:8000/accounts/profileinfo/"+loggedUser.username).then(response => {
       setLoggedUserProfile(response.data.profile)
     })
+    }
   }
   
   return (
     <Router>
       <Routes>
-        <Route path="/" Component={HomePage}></Route>
+        <Route path="/" Component={() => (<HomePage loggedUser={loggedUser} loggedUserProfile={loggedUserProfile}/>)}></Route>
         <Route path="/login" Component={LoginPage}></Route>
         <Route path="/register" Component={RegisterPage}></Route>
         <Route path="/settings" Component={SettingsPage}></Route>
