@@ -27,16 +27,16 @@ function RequestPage(){
             <NavBar/>
                 <div className="RequestsContainer" style={{backgroundColor:"rgb(81 88 117)"}}>
                     {RequestsList.map(item => (
-                        <RequestBox obj={item} key={item.username} social_name={item.username} image={item.image} date={item.date}/> 
+                        <RequestBox obj={item} key={item.reqId} social_name={item.username} image={item.image} date={item.date} rid={item.reqId}/> 
                     ))} 
-                    <RequestBox  social_name={'item.username'} image={'item.image'}/>
+                    
                 </div>
                 
         </div>
     )
 
     function GetAllRequests(props){
-    return fetch("/chatapp/allfriendsrequests").then(response =>
+        return fetch("/chatapp/allfriendsrequests").then(response =>
         response.json().then((data) => {
             const RL=data.requests_list
             
@@ -51,23 +51,43 @@ function RequestPage(){
             }
         }
   ))
-}}
-
-
-
-function RequestBox(props){
-    const onlinestyle={
-        color:'#888888',
-        fontSize:'10px',
-        border:'none',
-        padding:'6px'
-      }
-      return(
-        <div className="Socialdisplay">
-         <div className='square' ><a href={"/profile/"+props.social_name}><div className="imageinsquare"><img src={props.social_picture}></img></div></a></div><p><a href={"/profile/"+props.social_name} style={{fontSize:'24px'}}>{props.social_name}</a><p1 style={onlinestyle}>{props.date}</p1></p>
-          
-        </div>
-      )
 }
+    function RequestBox(props){
+        const onlinestyle={
+            color:'#888888',
+            fontSize:'10px',
+            border:'none',
+            padding:'6px'
+        }
+        const buttonClicked = event => {
+            
+            console.log(event.currentTarget.id);
+            console.log(event.currentTarget.value);
+            
+            
+            client.post(
+              "chatapp/responsetofriendsrequest/"+event.currentTarget.id,
+              {
+                "is_accepted":event.currentTarget.value
+              }
+            )
+            document.getElementById('id'+event.currentTarget.id).remove();
+
+          };
+        return(
+            <div className="Socialdisplay" id={'id'+props.rid}>
+                <div className='square' ><a href={"/profile/"+props.social_name}><div className="imageinsquare"><img src={props.social_picture}></img></div></a></div><p><a href={"/profile/"+props.social_name} style={{fontSize:'24px'}}>{props.social_name}</a><p1 style={onlinestyle}>{props.date}</p1></p>
+                <div className='button-holder'><button onClick={buttonClicked} id={props.rid} value="yes" href="#" style={{backgroundColor:"rgb(104, 219, 75)"}}>✓</button><button id="no" onClick={buttonClicked} value={props.rid} style={{backgroundColor:"rgb(165, 44, 44)"}}>X</button></div>
+            </div>
+        )
+        
+    }
+    
+   
+}
+
+
+
+
 
 export default RequestPage

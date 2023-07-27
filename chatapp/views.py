@@ -43,9 +43,19 @@ class FriendRequest(APIView):
             except:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             
-class isRequested(APIView):
+class DidYouRequest(APIView):
+    permission_classes = (permissions.AllowAny,)
+    authentication_classes = (SessionAuthentication,)
     def get(self, request, *args, **kwargs):
-        print(request.user.profile, args, kwargs)
+        print(request.data)
+        second_us=Account.objects.get(username=kwargs["username"])
+        second_us_prof=Profile.objects.get(user=second_us)
+        is_requested_by_looking_user=FriendsRequest.objects.get(who_send=request.user.profile, who_received=second_us_prof)
+        print(is_requested_by_looking_user,'sprawdm')
+        if not is_requested_by_looking_user:
+            return Response({'is_requested_by_you':"no"}, status=status.HTTP_200_OK)
+        else:
+            return Response({'is_requested_by_you':"yes", 'request_id':is_requested_by_looking_user.id}, status=status.HTTP_200_OK)
 
 
 class AddToFriends(APIView):
@@ -82,6 +92,35 @@ class AllRequests(APIView):
         all_requests=FriendsRequest.objects.filter(who_received=request.user.profile)
         
 
-        to_send=[{"username":x.who_send.user.username, "image":x.who_send.image.name, "date":datetime.datetime.strptime(str(x.date)[0:10], "%Y-%m-%d").strftime('%d/%m/%Y')} for x in all_requests]
+        to_send=[{"username":x.who_send.user.username, "image":x.who_send.image.name, "reqId":x.id, "date":datetime.datetime.strptime(str(x.date)[0:10], "%Y-%m-%d").strftime('%d/%m/%Y')} for x in all_requests]
         
         return Response({'requests_list':to_send}, status=status.HTTP_200_OK)
+    
+class ResponseToFriendsRequest(APIView):
+    def post(self, request, *args, **kwargs):
+        is_accepted=request.data["is_accepted"]
+        if is_accepted=='yes':
+            print('wow bedziecie znaj')
+            request_processed=FriendsRequest.objects.get(id=kwargs["id"])
+            print(request_processed)
+            if request.user.profile==request_processed.who_received:
+                print('zaraz akcept pojdzie jo')
+                
+                request.user.profile.friends.add(request_processed.who_send)
+                request_processed.who_send.friends.add(request.user.profile)
+                request_processed.delete()
+
+            else:
+                print('wtf ziomus nie zaakceptujemy tego od cb')
+                
+        return Response({''}, status=status.HTTP_200_OK)
+    
+class deleteFriendsRequest(APIView):
+    print('dotralo')
+    def post(self, request, *args, **kwargs):
+        request_processed=FriendsRequest.objects.get(id=kwargs["id"])
+        if request.user.profile==request_processed.who_send:
+            request_processed.delete()
+            Response({''}, status=status.HTTP_200_OK)
+        else:
+            Response({''}, status=status.HTTP_401_UNAUTHORIZED)

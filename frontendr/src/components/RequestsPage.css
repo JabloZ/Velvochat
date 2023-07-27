@@ -88,3 +88,15 @@
       grid-template-columns: 30% 70% ;
     }
   }
+.button-holder{
+  margin:4px;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: baseline;
+}
+.button-holder button{
+  border: none;
+  border-radius: 10%;
+  padding:5% 10%;
+ 
+}
