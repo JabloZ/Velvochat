@@ -11,6 +11,7 @@ from django.contrib.auth.decorators import login_required
 from .models import Account
 from chatapp.models import Profile
 from django.shortcuts import get_object_or_404, Http404
+from django.core.files.storage import FileSystemStorage
 
 class UserRegister(APIView):
 	
@@ -90,9 +91,14 @@ class ProfileView(APIView):
 class editProfile(APIView):
 	permission_classes = (permissions.IsAuthenticated,)
 	authentication_classes = (SessionAuthentication,)
-
-	def post(self, request, *args, **kwargs):
-		print(request.data)
+	def get(self, request):
 		serializer=EditProfileSerializer(request.user.profile)
-		print(serializer.data)
-		return Response({"profile":serializer.data})
+		return Response({"profile":serializer.data}, status=status.HTTP_200_OK)
+	def post(self, request, *args, **kwargs):
+		if "image" in request.data:
+			request.user.profile.image.delete(save=True)
+			request.user.profile.image.save(request.data["image"].name, request.data["image"])
+		if "bio" in request.data:	
+			request.user.profile.bio=str(request.data["bio"])
+			request.user.profile.save()
+		return Response({"":''}, status=status.HTTP_200_OK)

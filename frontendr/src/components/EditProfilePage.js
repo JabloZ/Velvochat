@@ -14,7 +14,7 @@ const client = axios.create({
 });
 
 function EditProfilePage(props){
-    const [bio, setBio]=useState([])
+    const [bio, setBio]=useState('')
     const [pimage, setPimage]=useState([])
     const [imageBefore, setImageBefore]=useState(false)
     const [imageChanged, setImageChanged]=useState([])
@@ -36,6 +36,7 @@ function EditProfilePage(props){
         }))
     }
     const changePicture = (e) => {
+      console.log(e.target.files[0])
       setImageChanged(e.target.files[0])
     }
 
@@ -53,6 +54,7 @@ function EditProfilePage(props){
         }
         }
       )
+      window.location.reload();
     };
   
 
@@ -74,7 +76,7 @@ function EditProfilePage(props){
         <NavBar/>
           <div className="EditProfileContainer" style={{backgroundColor:"rgb(81 88 117)"}}>
             
-            <form class="editprofileform" onSubmit={e => SubmitProfileChanges(e)}>
+            <form class="editprofileform" enctype="multipart/form-data" onSubmit={e => SubmitProfileChanges(e)}>
             <p style={{fontSize:"32px"}}>Your bio:</p>
               <label className="biochanger">
                 

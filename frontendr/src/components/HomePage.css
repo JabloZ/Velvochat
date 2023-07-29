@@ -144,6 +144,9 @@
     margin:4px;
     text-align: left;
   }
+  .Socialdisplay img{
+    max-width: 100%;
+  }
   /* 1066 */
   @media only screen and (max-width: 813px) {
     body {

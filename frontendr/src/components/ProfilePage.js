@@ -20,6 +20,7 @@ function ProfilePage(props) {
     let { username_prof } = useParams();
     const [img, setImg] = useState([]);
     const [user, setUserTrue] = useState([])
+    const [bio, setBio] = useState('')
     const [active, setUserActive] = useState([])
     const [isOwner, setUserOwner] = useState([])
     const [requestId, setRequestId] = useState([])
@@ -39,9 +40,7 @@ function ProfilePage(props) {
 
     }, [isFriend]);
 
-    function addToFriends(){
-        console.log(user, username_prof, 'tried')
-    };
+
     function GetIsRequested(props){
         return fetch('/chatapp/didyourequest/'+username_prof).then(response=>
             response.json().then((data)=>{
@@ -98,6 +97,8 @@ function ProfilePage(props) {
                 setUserFriend(((current_user.id != data.profile.id) && (checked==true)))
                 setImg(imgLink)
                 setUserTrue(true)
+                setBio(data.profile.bio)
+            
                 setUserOwner(props.loggedUser.username == username_prof)
                 
                 return DB;
@@ -202,7 +203,7 @@ function ProfilePage(props) {
 
                     <h4 style={{marginTop:'20px'}}>{username_prof}'s bio:</h4>
                     <div className="Bio-div">
-                        <p>I DONT HAVE ANYTHING TO SAY SLAAAAAAAAAAAAAAAAvasvasvasvasvasvasvasvasvasvasvasAAAAAAAAAAAAAAAAAAAAAAAAAY</p>
+                        <p value={bio}>{bio}</p>
                     </div>
                 </div>
                 <div className="outer-profile">

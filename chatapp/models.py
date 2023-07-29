@@ -31,7 +31,8 @@ class GroupChat(models.Model):
     now=datetime.datetime.now()
 
     image=models.ImageField(upload_to=upload_location_groupchat_logo, null=True, blank=True)
-    name=models.TextField(max_length=60, unique=False)
+    type=models.CharField(max_length=10, unique=False, blank=False)
+    name=models.TextField(max_length=60, unique=False, blank=False)
     admins=models.ManyToManyField(Profile, related_name='admins', blank=True)
     members=models.ManyToManyField(Profile, related_name='members', blank=True)
     date = models.DateTimeField(auto_now_add=True, blank=True)

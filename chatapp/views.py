@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework import permissions, status
 from django.core import serializers
 from django.contrib.auth.decorators import login_required
-from .models import FriendsRequest
+from .models import FriendsRequest, GroupChat
 from chatapp.models import Profile, Account
 from django.shortcuts import get_object_or_404, Http404
 from .serializers import FriendsRequestSerializer
@@ -109,7 +109,10 @@ class ResponseToFriendsRequest(APIView):
                 request.user.profile.friends.add(request_processed.who_send)
                 request_processed.who_send.friends.add(request.user.profile)
                 request_processed.delete()
-
+                g=GroupChat(type='private', name=request.user.username+" "+request_processed.who_send.user.username+' conversation')
+                g.save()
+                g.members.add(*[request.user.profile, request_processed.who_send])
+                
             else:
                 print('wtf ziomus nie zaakceptujemy tego od cb')
                 
