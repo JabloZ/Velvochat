@@ -8,6 +8,8 @@ urlpatterns=[
     path('allfriendsrequests', views.AllRequests.as_view(), name='allrequests'),
     path('responsetofriendsrequest/<id>', views.ResponseToFriendsRequest.as_view(), name='responserequest'),
     path('didyourequest/<username>', views.DidYouRequest.as_view(), name='didyourequest'),
-    path('deleterequest/<id>', views.deleteFriendsRequest.as_view(), name='deletefriendsrequest')
+    path('deleterequest/<id>', views.deleteFriendsRequest.as_view(), name='deletefriendsrequest'),
+    path('deletefromfriends/<username>', views.deleteFromFriends.as_view(), name='deletefriendsrequest'),
+    path('deleteprofilepicture', views.deleteProfilePicture.as_view(), name='deleteprofilepicture'),
     
 ]

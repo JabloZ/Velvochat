@@ -45,7 +45,7 @@ function ProfilePage(props) {
     function GetIsRequested(props){
         return fetch('/chatapp/didyourequest/'+username_prof).then(response=>
             response.json().then((data)=>{
-                console.log(data)
+                
                 if (data.is_requested_by_you=="no"){
                     setIsRequestedByYou(false)
                 }
@@ -55,13 +55,13 @@ function ProfilePage(props) {
                 }
             }, (error) => {
                 if (error) {
-                console.log('user doesnt exist')
+                
                 }
             })
         )
     }
 
-    function GetAllRequests(props){
+    function GetAllRequests(){
         return fetch("/chatapp/allfriendsrequests").then(response =>
         response.json().then((data) => {
             const RL=data.requests_list
@@ -76,31 +76,29 @@ function ProfilePage(props) {
             }
         }
         ))
-    }
+    };
     
     function GetProfileDetails(current_user){
         if (username_prof!=undefined){
            
             return fetch("/accounts/profileinfo/"+username_prof).then(response =>
-                response.json().then((data) => {
-                setImg(data.profile.image)
-                
+                response.json().then((data) => {     
                 setUserActive(data.user.is_active)
                 const DB=data.user
                 
                 let imgLink='http://127.0.0.1:8000'+data.profile.image
                 setImg(imgLink)
                 setUserTrue(true)
-                
                 setUserOwner(props.loggedUser.username == username_prof)
                 
                 const friends=data.profile.friends
-                const truefalse=((current_user.id != data.profile.id) && (friends.includes({"image":props.loggedUserProfile.image,"username":props.loggedUser.username})))
-    
                 const checkUsername = obj => obj.username ===props.loggedUser.username
                 const checked= (friends.some(checkUsername))
 
                 setUserFriend(((current_user.id != data.profile.id) && (checked==true)))
+                setImg(imgLink)
+                setUserTrue(true)
+                setUserOwner(props.loggedUser.username == username_prof)
                 
                 return DB;
                 
@@ -111,17 +109,15 @@ function ProfilePage(props) {
                     }
                 }
           ))};
-    }
+    };
     const showStyle={
         fontSize:'16px',
         color:'aqua',
         marginBottom:'16px',
         marginLeft:'12px'
-    }
-    const handleClick = (e) => {
+    };
+    const createFriendsRequestsCall = (e) => {
         e.preventDefault();
-        console.log('The link was clicked.');
-        console.log(user, username_prof, 'sends:', props.loggedUserProfile)
         client.post(
             "chatapp/addtofriends",
             {
@@ -131,14 +127,23 @@ function ProfilePage(props) {
             );
         window.location.reload();
 
-    }
-    const delReq= (e) => {
+    };
+    const deleteFriendsRequestCall= (e) => {
         e.preventDefault();
         
         client.post(
             "chatapp/deleterequest/"+e.target.id,
             {
-              
+            }
+        )
+        window.location.reload();
+    }
+    const deleteFromFriendsCall= (e) => {
+        e.preventDefault();
+        
+        client.post(
+            "chatapp/deletefromfriends/"+username_prof,
+            {
             }
         )
         window.location.reload();
@@ -160,7 +165,7 @@ function ProfilePage(props) {
                         <div>
                         <h1 className="usernameShow">{username_prof}</h1>
                         {isOwner ? (
-                            <a href="#" style={{backgroundColor:"rgb(55 65 86)", padding:'6px', borderRadius:'6px'}}>Edit profile</a>
+                            <a href="/editprofile" style={{backgroundColor:"rgb(55 65 86)", padding:'6px', borderRadius:'6px'}}>Edit profile</a>
                             ) : (
                                 <></>
                         )}
@@ -171,26 +176,21 @@ function ProfilePage(props) {
                         </div>
                         {isOwner ? (
                            <></>
-                            ) : (
-                                
+                            ) : (  
                                 isFriend ? (
-
-                                        <a href="#" className='friends-interaction' style={{backgroundColor:"red"}}>Remove from friends</a>
+                                        <a href="#" className='friends-interaction' style={{backgroundColor:"red"}} onClick={deleteFromFriendsCall}>Remove from friends</a>
                                      ) : (
                                         isRequested ? (
                                             <a className='friends-interaction' href="/requests" style={{fontSize:"14px"}}>User sent you a request, go to requests to accept it, click HERE</a>
                                         ) : (
                                             isRequestedByYou ? (
-                                                <a className='friends-interaction' href="javascript:void(0)" id={requestId} onClick={delReq}>Remove Request</a>
+                                                <a className='friends-interaction' href="javascript:void(0)" id={requestId} onClick={deleteFriendsRequestCall}>Remove Request</a>
                                             ) : (
-                                                <a className='friends-interaction' href="#" onClick={handleClick}>Add to friends</a>
+                                                <a className='friends-interaction' href="#" onClick={createFriendsRequestsCall}>Add to friends</a>
                                             )
                                             )
-                                        )
-                                        
-                                )
-                                
-                                
+                                        )                                  
+                                )      
                         }
                         
                     </div>

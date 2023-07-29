@@ -121,6 +121,21 @@ class deleteFriendsRequest(APIView):
         request_processed=FriendsRequest.objects.get(id=kwargs["id"])
         if request.user.profile==request_processed.who_send:
             request_processed.delete()
-            Response({''}, status=status.HTTP_200_OK)
+            return Response({''}, status=status.HTTP_200_OK)
         else:
-            Response({''}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({''}, status=status.HTTP_401_UNAUTHORIZED)
+
+class deleteFromFriends(APIView):
+    def post(self, request, *args, **kwargs):
+
+        user_to_remove_from_friends_acc=Account.objects.get(username=kwargs["username"])
+        user_to_remove_from_friends=Profile.objects.get(user=user_to_remove_from_friends_acc)
+        request.user.profile.friends.remove(user_to_remove_from_friends)
+        user_to_remove_from_friends.friends.remove(request.user.profile)
+        return Response({''}, status=status.HTTP_200_OK)
+    
+class deleteProfilePicture(APIView):
+    def post(self, request, *args, **kwargs):
+        print(request.data)
+        request.user.profile.image.delete(save=True)
+        return Response({''}, status=status.HTTP_200_OK)

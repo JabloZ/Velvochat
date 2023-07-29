@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model, login, logout
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .serializers import UserRegisterSerializer, UserLoginSerializer, UserSerializer, ProfileSerializer
+from .serializers import UserRegisterSerializer, UserLoginSerializer, UserSerializer, ProfileSerializer, EditProfileSerializer
 from rest_framework import permissions, status
 from .validations import custom_validation, validate_email, validate_password, validate_username
 from django.contrib.auth.decorators import login_required
@@ -86,3 +86,13 @@ class ProfileView(APIView):
 		serialized["friends"]=new_friend_list
 		
 		return Response({'profile': serialized, 'user':serializeuser.data}, status=status.HTTP_200_OK)
+
+class editProfile(APIView):
+	permission_classes = (permissions.IsAuthenticated,)
+	authentication_classes = (SessionAuthentication,)
+
+	def post(self, request, *args, **kwargs):
+		print(request.data)
+		serializer=EditProfileSerializer(request.user.profile)
+		print(serializer.data)
+		return Response({"profile":serializer.data})
