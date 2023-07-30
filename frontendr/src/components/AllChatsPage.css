@@ -1,0 +1,75 @@
+.CentralDiv{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    max-height: 100vh;
+    min-height: 100vh;
+    
+}
+.RequestsContainer{
+    overflow: auto;
+    position: fixed;
+    max-width: 40%;
+    max-height: 60%;
+    min-height: 60%;
+    min-width: 40%;
+    padding:24px;
+    display: flex;
+    border-radius: 48px;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    flex-direction: column;
+   
+    
+}
+
+.Socialdisplay{
+    display: grid;
+    grid-template-columns: 25% 75% ;
+    border: 1px solid rgb(73, 80, 119);
+    
+  }
+  .Socialdisplay a,.Socialdisplay p, .Socialdisplay p1,.Socialdisplay .square{
+    min-width: 100%;
+    text-decoration: none;
+  }
+  .imageCon{
+    grid-row-start: 1;
+    grid-row-end:   3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .square {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    grid-row-start: 1;
+    grid-row-end:   3;
+  }
+  .imageinsquare{
+    aspect-ratio: 1/1;
+    background-color: #7a87b1;
+    border-radius: 50%;
+    max-width: 90%;
+    min-width: 90%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .Socialdisplay p{
+    
+    margin:4px;
+    text-align: left;
+  }
+  .Socialdisplay p a{
+    font-size: 24px;
+  }
+  .Socialdisplay img{
+    max-width: 100%;
+    border-radius: 50%;
+    
+  }

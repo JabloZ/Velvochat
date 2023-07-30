@@ -82,7 +82,7 @@ function NavBar(props) {
       <div className='navbar-inner'>
         <a href={"/profile/"+username+'/'} style={leftstyle} >👤<p style={minimalFont}>{username}</p></a>
         <a href="#" style={leftstyle} >🔔<p style={minimalFont}>Notifications</p></a>
-        <a href="#" style={leftstyle} >💬<p style={minimalFont}>Chats</p></a>
+        <a href="/allchats" style={leftstyle} >💬<p style={minimalFont}>Chats</p></a>
         
         <Dropdown>
         <Dropdown.Toggle variant="success" id="dropdown-basic" className="dropdown-button-style">

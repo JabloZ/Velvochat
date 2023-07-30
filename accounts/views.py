@@ -82,7 +82,7 @@ class ProfileView(APIView):
 				raise Http404
 		self.check_object_permissions(self.request, obj)
 
-		new_friend_list=[{"image":(get_object_or_404(Profile, id=x)).image.url if (get_object_or_404(Profile, id=x)).image!='' else "","username":(get_object_or_404(Profile, id=x)).user.username, } for x in serializer.data["friends"]]
+		new_friend_list=[{"image":(get_object_or_404(Profile, id=x)).image.url if (get_object_or_404(Profile, id=x)).image else "","username":(get_object_or_404(Profile, id=x)).user.username, } for x in serializer.data["friends"]]
 		serialized=serializer.data
 		serialized["friends"]=new_friend_list
 		

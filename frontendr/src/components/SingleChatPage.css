@@ -161,11 +161,11 @@
   }
   .chatdiv{
     top:100px;
-    visibility: hidden;
+    visibility: VISIBLE;
     position: relative;
     width: 80%;
     height: 100%;
-    left:20%;
+    left:10%;
     box-sizing: border-box;
     
   }
@@ -212,24 +212,31 @@
   
   .chatNavbar .square{
     aspect-ratio: 1/1;
-    background-color: #7a87b1;
-    border-radius: 50%;
+    
+    
     max-width: 10%;
-    min-width: 20%;
-    padding: 24px;
+    min-width: 0;
+    border-radius: 0;
+    padding: 0;
     margin-left: 12px;
+    display: flex;
+    align-items: center;
   }
   .usimContainer{
     display: flex;
     align-items: center;
-    justify-content: center;
+    
     flex-direction: row;
+    justify-content: flex-start;
+  }
+  .usimContainer p{
+    margin-top: 0;
   }
   .chatdiv .chatAssist .chatOpened .chatDownbar, .chatInside{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
+    
+    overflow: auto;
+    max-height: 55vh;
+    display: inline-block;
     min-width: 80%;
     flex: 1;
     background-color: #282c34;
@@ -242,6 +249,8 @@
     justify-content: center;
     align-items: center;
     flex-direction: row;
+    max-width: 80%;
+    margin-left: 10%;
   }
   .chatInputHolder button{
     min-height: 8vh;
@@ -287,42 +296,24 @@
     text-decoration: none !important;
   }
   .message{
-  
-    padding: 24px;
+    min-width: 50%;
+    padding: 16px;
     margin:24px;
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100px;
     max-width: 50%;
     background-color: #888;
+    border-radius:24px;
+    min-height: 50px;
+    word-break: break-word;
+  }
+  .message p{
+    margin-bottom: 0;
+
   }
 
 
-  .navbar-inner-search{
-    min-height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    align-content: stretch;
-    gap: 0px;
-
-  }
-
-.navbar-inner-search button{
-    
-    color: white;
-    background-color: rgb(37, 141, 189);
-    box-sizing: border-box;
-    min-width: 10%;
-    padding: 12px 20px;
-    margin: 8px 0;
-    border: 1px solid black;
-  }
-.navbar-inner-search input{
-    width: 100%;
-    padding: 12px 20px;
-    margin: 8px 0;
-    border:1px solid black;
-    transition: width 0.4s ease-in-out;
+.imageinsquare img{
+    max-width: 100%;
 }

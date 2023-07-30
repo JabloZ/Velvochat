@@ -32,8 +32,9 @@ urlpatterns = [
     path('settings',views.index, name='index'),
     path('profile/<str:username>/', views.index, name='index'),
     path('requests', views.index, name='index'),
-    path('editprofile', views.index, name='index')
-    
+    path('editprofile', views.index, name='index'),
+    path('allchats', views.index, name='index'),
+    path('chat/<id>', views.index, name='index'),
 
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

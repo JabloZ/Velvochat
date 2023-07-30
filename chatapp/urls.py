@@ -11,5 +11,8 @@ urlpatterns=[
     path('deleterequest/<id>', views.deleteFriendsRequest.as_view(), name='deletefriendsrequest'),
     path('deletefromfriends/<username>', views.deleteFromFriends.as_view(), name='deletefriendsrequest'),
     path('deleteprofilepicture', views.deleteProfilePicture.as_view(), name='deleteprofilepicture'),
+    path('allusergroups', views.ShowUserGroups.as_view(), name='allusergroups'),
+    path('chatinfo/<id>', views.ShowChat.as_view(), name='showchat'),
+    path('chatmessages/<id>', views.ShowMessages.as_view(), name='showmessages')
     
 ]

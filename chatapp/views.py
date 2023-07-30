@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework import permissions, status
 from django.core import serializers
 from django.contrib.auth.decorators import login_required
-from .models import FriendsRequest, GroupChat
+from .models import FriendsRequest, GroupChat, Message
 from chatapp.models import Profile, Account
 from django.shortcuts import get_object_or_404, Http404
 from .serializers import FriendsRequestSerializer
@@ -50,8 +50,11 @@ class DidYouRequest(APIView):
         print(request.data)
         second_us=Account.objects.get(username=kwargs["username"])
         second_us_prof=Profile.objects.get(user=second_us)
-        is_requested_by_looking_user=FriendsRequest.objects.get(who_send=request.user.profile, who_received=second_us_prof)
-        print(is_requested_by_looking_user,'sprawdm')
+        try:
+            is_requested_by_looking_user=FriendsRequest.objects.get(who_send=request.user.profile, who_received=second_us_prof)
+        except:
+            is_requested_by_looking_user=None
+    
         if not is_requested_by_looking_user:
             return Response({'is_requested_by_you':"no"}, status=status.HTTP_200_OK)
         else:
@@ -109,7 +112,7 @@ class ResponseToFriendsRequest(APIView):
                 request.user.profile.friends.add(request_processed.who_send)
                 request_processed.who_send.friends.add(request.user.profile)
                 request_processed.delete()
-                g=GroupChat(type='private', name=request.user.username+" "+request_processed.who_send.user.username+' conversation')
+                g=GroupChat(type='private', name=request.user.username+", "+request_processed.who_send.user.username)
                 g.save()
                 g.members.add(*[request.user.profile, request_processed.who_send])
                 
@@ -142,3 +145,38 @@ class deleteProfilePicture(APIView):
         print(request.data)
         request.user.profile.image.delete(save=True)
         return Response({''}, status=status.HTTP_200_OK)
+    
+
+class ShowUserGroups(APIView):
+    def get(self, request, *args, **kwargs):  
+        all_groups=GroupChat.objects.filter(members=request.user.profile)
+        print(all_groups)
+        n=[{"name":x.name, "id":x.id, "image":x.image.url if x.image else ""} for x in all_groups]
+        print(n)
+        return Response({'groups':n}, status=status.HTTP_200_OK)
+    
+class ShowChat(APIView):
+    def get(self, request, *args, **kwargs):
+        
+        print(request.data)
+        choosen_group=GroupChat.objects.get(id=kwargs["id"])
+        if request.user.profile in choosen_group.members.all():
+            print(choosen_group)
+            print(choosen_group.members.all())
+            all_members=[{"username":x.user.username, "image":x.image.url if x.image else ""} for x in choosen_group.members.all()]
+            return Response({"group":{"name":choosen_group.name, "image":choosen_group.image.url, "type":choosen_group.type, "members":all_members}}, status=status.HTTP_200_OK)
+        else:
+            print('nieautoryzowany')
+            return Response("",status=status.HTTP_401_UNAUTHORIZED)
+        
+class ShowMessages(APIView):
+    def get(self, request, *args, **kwargs):
+        choosen_group=GroupChat.objects.get(id=kwargs["id"])
+        if request.user.profile in choosen_group.members.all():
+            messages=Message.objects.filter(belongs_to=choosen_group)
+            
+            messages_returned=[{"author":x.author.user.username, "text":x.text, "date":x.date} for x in messages]
+            return Response({"group_messages":messages_returned}, status=status.HTTP_200_OK)
+        else:
+            print('nieautoryzowany')
+            return Response("",status=status.HTTP_401_UNAUTHORIZED)
