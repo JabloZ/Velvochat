@@ -1,4 +1,4 @@
-import React, {Component, useState} from "react";
+import React, {Component, useEffect, useState} from "react";
 import './HomePage.css';
 import Dropdown from 'react-bootstrap/Dropdown';
 
@@ -14,16 +14,14 @@ const client = axios.create({
   baseURL: "http://127.0.0.1:8000"
 });
 
-function NavBar(props) {  
+function NavBar(props) { 
+    
     const [username, setUsername]=useState('')
-    CheckLoggedIn().then(function myfunc(DB){
-        
-      setUsername(DB.username)
-      const username=DB.username
-      
-      return username
 
-    })  
+    useEffect(()=>{
+      CheckLoggedIn();
+      },[]
+    )
     const navigate = useNavigate();
     const leftstyle={
       float:"left",
@@ -53,7 +51,7 @@ function NavBar(props) {
     }
 
     function CheckLoggedIn(){
-      const navigate = useNavigate();
+      
       return fetch("/accounts/user").then(response =>
         response.json().then((data) => {
          
@@ -61,7 +59,8 @@ function NavBar(props) {
             navigate("/login")
           }
           const DB=data.user
-          
+          console.log(DB)
+          setUsername(DB.username)
           return DB;
           
         }

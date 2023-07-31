@@ -28,18 +28,40 @@ function ProfilePage(props) {
     const [addTo, setAddTo] = useState(false)
     const [isRequested, setIsRequested] = useState(false)
     const [isRequestedByYou, setIsRequestedByYou] = useState(false)
+    const [isGroup, setIsGroup] = useState(false)
+    const [groupID, setGroupId] = useState('')
+
 
     useEffect(() => {
         const current_user=props.loggedUserProfile
         GetProfileDetails(current_user);
         GetAllRequests();
         GetIsRequested();
+        GetIsChat();
       }, [username_prof]);
    
     useEffect(() =>{
 
     }, [isFriend]);
 
+    function GetIsChat(props){
+        return fetch('/chatapp/privatechatexists/'+username_prof).then(response=>
+            response.json().then((data)=>{
+                
+                if (data.isgroup=="no"){
+                    setIsGroup(false)
+                }
+                else{
+                    setIsGroup(true)
+                    setGroupId(data.groupid)
+                }
+            }, (error) => {
+                if (error) {
+                
+                }
+            })
+        )
+    }
 
     function GetIsRequested(props){
         return fetch('/chatapp/didyourequest/'+username_prof).then(response=>
@@ -149,6 +171,16 @@ function ProfilePage(props) {
         )
         window.location.reload();
     }
+    const createChat= (e) => {
+        e.preventDefault();
+        
+        client.post(
+            "/chatapp/createprivatechat/"+username_prof,
+            {
+            }
+        )
+        window.location.reload();
+    }
 
    
     if (user===true){
@@ -168,7 +200,12 @@ function ProfilePage(props) {
                         {isOwner ? (
                             <a href="/editprofile" style={{backgroundColor:"rgb(55 65 86)", padding:'6px', borderRadius:'6px'}}>Edit profile</a>
                             ) : (
-                                <></>
+                                isGroup ?(
+                                    <a href={"/chat/"+groupID}  style={{backgroundColor:"rgb(55 65 86)", padding:'6px', borderRadius:'6px'}}>Open chat</a>
+                                ) : (
+                                    <a href="#" onClick={createChat}  style={{backgroundColor:"rgb(55 65 86)", padding:'6px', borderRadius:'6px'}}>Start chat</a>
+                                )
+                               
                         )}
                         </div>
                         <p style={{marginBottom:'4px'}}>Last time active: 6h ago</p>

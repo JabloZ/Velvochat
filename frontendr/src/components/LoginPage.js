@@ -40,7 +40,7 @@ function LoginPage(){
             <div className="login-top">
                 <h1 style={{padding:'16px', textAlign:'center'}}>Login</h1>
             </div>
-
+                                            
             <form style={{minWidth:'80%', padding:'12px'}} onSubmit={e => submitLogin(e)}>
                 <div className="form-group">
                     
@@ -48,7 +48,7 @@ function LoginPage(){
                         <button>👤</button><input type="email" id="fname" name="fname" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)}/>
                     </div>
                     <div className="input-holder">
-                    
+
                         <button>🔒</button><input type="password" id="lname" name="lname" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)}/>
                     </div>
                     <div className="login-button-holder"><button className="login-button">Login</button></div>

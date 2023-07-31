@@ -36,7 +36,7 @@ function ChatsPage(){
             <NavBar/>
                 <div className="RequestsContainer" style={{backgroundColor:"rgb(81 88 117)"}}>
                     {groups.map(item => (
-                        <GroupBox obj={item} name={item.name} image={item.image}/> 
+                        <GroupBox obj={item} name={item.name} image={item.image} id={item.id}/> 
                     ))} 
                     
                 </div>
@@ -53,7 +53,7 @@ function GroupBox(props){
       }
       return(
         <div className="Socialdisplay">
-         <div className='square' ><a href={"/profile/"+props.name}><div className="imageinsquare"><img src={'http://127.0.0.1:8000'+props.image}></img></div></a></div><p><a href={"/profile/"+props.name}>{props.name}</a><p1 style={onlinestyle}>35min ago</p1></p><p style={{textAlign:'left', fontSize:'12px'}}>X: Maybe</p>
+         <div className='square' ><a href={"/chat/"+props.id}><div className="imageinsquare"><img src={'http://127.0.0.1:8000'+props.image}></img></div></a></div><p><a href={"/chat/"+props.id}>{props.name}</a><p1 style={onlinestyle}>35min ago</p1></p><p style={{textAlign:'left', fontSize:'12px'}}>X: Maybe</p>
           
         </div>
       )

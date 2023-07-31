@@ -13,6 +13,10 @@ urlpatterns=[
     path('deleteprofilepicture', views.deleteProfilePicture.as_view(), name='deleteprofilepicture'),
     path('allusergroups', views.ShowUserGroups.as_view(), name='allusergroups'),
     path('chatinfo/<id>', views.ShowChat.as_view(), name='showchat'),
-    path('chatmessages/<id>', views.ShowMessages.as_view(), name='showmessages')
+    path('chatmessages/<id>', views.ShowMessages.as_view(), name='showmessages'),
+    path('sendmessage/<id>', views.SendMessage.as_view(), name='sendmessages'),
+    path('privatechatexists/<username>', views.PrivateChatExists.as_view(), name='privatechatexists'),
+    path('createprivatechat/<username>', views.CreatePrivateChat.as_view(), name='privatechatexists'),
+    
     
 ]

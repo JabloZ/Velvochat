@@ -13,6 +13,7 @@ import json
 from django.core.serializers.json import DjangoJSONEncoder
 from .validations import validate_request
 import datetime
+from django.db.models import Count
 
 class FriendRequest(APIView):
     permission_classes = (permissions.AllowAny,)
@@ -175,8 +176,70 @@ class ShowMessages(APIView):
         if request.user.profile in choosen_group.members.all():
             messages=Message.objects.filter(belongs_to=choosen_group)
             
-            messages_returned=[{"author":x.author.user.username, "text":x.text, "date":x.date} for x in messages]
+            messages_returned=[{"author":x.author.user.username, "text":x.text, "date":datetime.datetime.strptime(str(x.date)[0:10], "%Y-%m-%d").strftime('%d/%m/%Y')} for x in messages]
             return Response({"group_messages":messages_returned}, status=status.HTTP_200_OK)
         else:
             print('nieautoryzowany')
             return Response("",status=status.HTTP_401_UNAUTHORIZED)
+
+class SendMessage(APIView):
+    def post(self, request, *args, **kwargs):
+        group_id=kwargs["id"]
+        print(request.data, kwargs["id"],'fasasasasasasasasas')
+        try:
+            groupWherePosted=GroupChat.objects.get(id=group_id)
+            if request.user.profile in groupWherePosted.members.all():
+                mes=Message(text=request.data["text"], author=request.user.profile, belongs_to=groupWherePosted)
+                mes.save()
+                return Response("",status=status.HTTP_201_CREATED)
+            else:
+                return Response("", status=status.HTTP_401_UNAUTHORIZED)
+        except:
+            return Response("",status=status.HTTP_400_BAD_REQUEST)
+    
+class PrivateChatExists(APIView):
+    def get(self, request, *args, **kwargs):
+        try:
+            other_user=Account.objects.get(username=kwargs["username"])
+            other_user_prof=Profile.objects.get(user=other_user)
+            
+            pk_list = [request.user.profile, other_user_prof]
+
+            node_query = GroupChat.objects.annotate(count=Count('members')).filter(count=len(pk_list))
+
+            for pk in pk_list:
+                print(pk)
+                node_query = node_query.filter(members=pk)
+            if node_query:
+                print('cos jest')
+                gc=(list(node_query))[0]
+                print(gc.id)
+                return Response({"isgroup":"yes", "groupid":gc.id},status=status.HTTP_200_OK)
+            else:
+                return Response({"isgroup":"no"},status=status.HTTP_204_NO_CONTENT)
+        except:
+            return Response({"isgroup":"no"},status=status.HTTP_400_BAD_REQUEST)
+        
+class CreatePrivateChat(APIView):
+     def post(self, request, *args, **kwargs):
+        try:
+            other_user=Account.objects.get(username=kwargs["username"])
+            other_user_prof=Profile.objects.get(user=other_user)
+            
+            pk_list = [request.user.profile, other_user_prof]
+
+            node_query = GroupChat.objects.annotate(count=Count('members')).filter(count=len(pk_list))
+
+            for pk in pk_list:
+                print(pk)
+                node_query = node_query.filter(members=pk)
+            if node_query:
+                return Response({},status=status.HTTP_409_CONFLICT)
+            else:
+                
+                g=GroupChat(name=f"{request.user.username}, {other_user_prof.user.username}", type="private")
+                g.save()
+                g.members.add(*pk_list)
+                return Response({},status=status.HTTP_201_CREATED)
+        except:
+            return Response({},status=status.HTTP_400_BAD_REQUEST)

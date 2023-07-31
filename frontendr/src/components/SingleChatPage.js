@@ -1,4 +1,4 @@
-import React, {Component, useEffect, useState} from "react";
+import React, {Component, useEffect, useState, useRef } from "react";
 import './SingleChatPage.css';
 import Dropdown from 'react-bootstrap/Dropdown';
 import NavBar from './Navbar'
@@ -16,22 +16,38 @@ const client = axios.create({
 });
 
 function SingleChatPage(props){
-    let {chat_id} = useParams()
+    let {chat_id} = useParams();
     
-    const [username, setUsername]=useState('')
-    const [messages, updateMessages]=useState([])
-    const [name, updateName]=useState([])
-    const [image, updateImage]=useState([])
+    const [usernameS, setUsernameS]=useState('');
+    const message = useRef(null);
+    const [messages, updateMessages]=useState([]);
+    const [name, updateName]=useState([]);
+    const [image, updateImage]=useState([]);
+
 
     useEffect(()=>{
-        setUsername(props.loggedUser.username)
+        setUsernameS(props.loggedUser.username)
         catchGroupInfo();
 
     },[])
     useEffect(()=>{
         catchGroupMessages();
-    },[name])
+    },[])
 
+
+    function sendMessage(e) {
+        e.preventDefault();
+        
+        
+        
+        client.post(
+            "/chatapp/sendmessage/"+chat_id,
+            {
+                "text":message.current.value
+            }
+        );
+        message.current.value=null
+      }
 
 
     function catchGroupInfo(){
@@ -47,7 +63,6 @@ function SingleChatPage(props){
         return fetch("/chatapp/chatmessages/"+chat_id).then(response =>
             response.json().then((data)=>{
                 updateMessages(data.group_messages)
-                console.log(data)
             })
             )
     }
@@ -90,8 +105,11 @@ function SingleChatPage(props){
                 ))} 
                 </div>
                 <div className='chatDownbar' style={downbarStyle}>
-                <form>
-                    <div className='chatInputHolder'><textarea style={{resize:'none', fontSize:'14px'}}id="msg" name="msg" rows="5" cols="50"></textarea><button className='sendMessageButton'>Send</button></div>
+                <form onSubmit={e => sendMessage(e)}>                                                                                                                   
+                    <div className='chatInputHolder'>
+                        <textarea style={{resize:'none', fontSize:'14px'}} type="text" id="lname" name="lname" ref={message}/>
+                        <button className='sendMessageButton'>Send</button>
+                    </div>
                 </form>
                 </div>
             </div>
@@ -100,10 +118,11 @@ function SingleChatPage(props){
         )
     }
     function ChatMessage(props){
-        if(props.author==username)
+        if(props.author==usernameS)
         {
         return(
             <div className='message' style={{float:"right", backgroundColor:"#6582b7"}}>
+                <a target="_blank" href={"/profile/"+props.author}>{props.author}</a><p className="date-show">{props.date}</p>
                 <p>{props.text}</p>
             </div>
             )
@@ -111,6 +130,7 @@ function SingleChatPage(props){
         else{
             return(
             <div className='message' style={{float:"left"}}>
+                <a target="_blank" href={"/profile/"+props.author}>{props.author}</a><p className="date-show">{props.date}</p>
                 <p>{props.text}</p>
             </div>
             )
