@@ -17,6 +17,7 @@ import RequestsPage from './components/RequestsPage';
 import EditProfilePage from './components/EditProfilePage';
 import ChatsPage from './components/AllChatsPage';
 import SingleChatPage from './components/SingleChatPage';
+import AllFriendsPage from './components/AllFriendsPage';
 import axios from 'axios';
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux'
@@ -63,6 +64,7 @@ function App(props) {
         <Route path="/editprofile" Component={() => (<EditProfilePage loggedUser={loggedUser} loggedUserProfile={loggedUserProfile}/>)}></Route>
         <Route path="/allchats" Component={() => (<ChatsPage/>)}></Route>
         <Route path="/chat/:chat_id" Component={() => (<SingleChatPage loggedUser={loggedUser} loggedUserProfile={loggedUserProfile}/>)}></Route>
+        <Route path="/allfriends/:username_prof" Component={() => (<AllFriendsPage/>)}></Route>
       </Routes>
     </Router>
 

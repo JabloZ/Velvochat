@@ -51,6 +51,7 @@ const client = axios.create({
     const socialcontainer={
       
       minHeight:'100%'
+      
     }
     
 

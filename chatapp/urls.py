@@ -16,7 +16,8 @@ urlpatterns=[
     path('chatmessages/<id>', views.ShowMessages.as_view(), name='showmessages'),
     path('sendmessage/<id>', views.SendMessage.as_view(), name='sendmessages'),
     path('privatechatexists/<username>', views.PrivateChatExists.as_view(), name='privatechatexists'),
-    path('createprivatechat/<username>', views.CreatePrivateChat.as_view(), name='privatechatexists'),
+    path('createprivatechat/<username>', views.CreatePrivateChat.as_view(), name='createprivatechat'),
+    path('showuserfriends/<username>', views.ShowUserFriends.as_view(), name='showuserfriends'),
     
     
 ]

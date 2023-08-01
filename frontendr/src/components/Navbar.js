@@ -1,5 +1,5 @@
 import React, {Component, useEffect, useState} from "react";
-import './HomePage.css';
+import './NavBar.css';
 import Dropdown from 'react-bootstrap/Dropdown';
 
 import axios from 'axios';
@@ -90,6 +90,7 @@ function NavBar(props) {
 
         <Dropdown.Menu className="Dropdown-items-holder">
           <Dropdown.Item href="#">📙 Help and FAQ</Dropdown.Item>
+          <Dropdown.Item href={"/allfriends/"+username}>👥Friends</Dropdown.Item>
           <Dropdown.Item href="/requests">👥Friends requests</Dropdown.Item>
           <Dropdown.Item href="/settings">⚙️ Settings</Dropdown.Item>
           <Dropdown.Item href="logout" style={{border:'3px solid rgb(184 195 217)'}} className='form-class' onClick={e => submitLogout(e)}>

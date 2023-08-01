@@ -20,6 +20,7 @@ function ProfilePage(props) {
     let { username_prof } = useParams();
     const [img, setImg] = useState([]);
     const [user, setUserTrue] = useState([])
+    const [flistlength, setFlistlength] = useState([])
     const [bio, setBio] = useState('')
     const [active, setUserActive] = useState([])
     const [isOwner, setUserOwner] = useState([])
@@ -106,7 +107,7 @@ function ProfilePage(props) {
                 response.json().then((data) => {     
                 setUserActive(data.user.is_active)
                 const DB=data.user
-                
+                setFlistlength(data.flistlength)
                 let imgLink='http://127.0.0.1:8000'+data.profile.image
                 setImg(imgLink)
                 setUserTrue(true)
@@ -210,7 +211,7 @@ function ProfilePage(props) {
                         </div>
                         <p style={{marginBottom:'4px'}}>Last time active: 6h ago</p>
                         <div style={{display:'flex', justifyContent:'flex-start', alignItems:'center', textAlign:'center'}}>
-                        <p>Friends: 91 - </p><a href="#" style={showStyle}>Show</a>
+                        <p>Friends: {flistlength} - </p><a href={"/allfriends/"+username_prof} style={showStyle}>Show</a>
                         </div>
                         {isOwner ? (
                            <></>

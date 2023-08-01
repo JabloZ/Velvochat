@@ -1,0 +1,76 @@
+.CentralDiv{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    max-height: 100vh;
+    min-height: 100vh;
+    
+}
+.FriendsContainer{
+    overflow: auto;
+    position: fixed;
+    max-width: 60%;
+    max-height: 60%;
+    min-height: 60%;
+    min-width: 40%;
+    padding:24px;
+    display: flex;
+    border-radius: 48px;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    flex-direction: column;
+   
+    
+}
+.SocialdisplayAF{
+    
+    display: grid;
+    background-color: #31384b;
+    border: 1px solid #495077;
+    grid-template-columns: 30% 70%;
+    max-height: 30vh;
+    margin: 12px;
+
+  }
+  .SocialdisplayAF a,.SocialdisplayAF p, .SocialdisplayAF p1,.SocialdisplayAF .square{
+    min-width: 100%;
+    text-decoration: none;
+  }
+  .imageCon{
+    grid-row-start: 1;
+    grid-row-end:   3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .square {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    grid-row-start: 1;
+    grid-row-end:   3;
+  }
+  .imageinsquare{
+    
+    border-radius: 50%;
+    max-width: 70%;
+    min-width: 70%;
+    background-color: inherit;
+    aspect-ratio: 0;
+  }
+  .SocialdisplayAF p{
+    margin: 14px;
+    text-align: left;
+  }
+  .SocialdisplayAF img{
+    max-width: 50%;
+    border-radius: 50%;
+  }
+.socCon{
+    min-width: 100%;
+}
+.square p{
+    font-size: 28px;
+}

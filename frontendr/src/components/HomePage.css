@@ -101,16 +101,17 @@
   }
   .sidebar .friendscontainer{
     overflow-y: scroll;
-    
+    overflow-x: hidden;
     position: sticky;
     display: flex;
     flex-direction: column;
     min-height: 100%;
+    align-items: flex-end;
   }
   
   .Socialdisplay{
-    display: grid;
-    grid-template-columns: 25% 75% ;
+    
+    
     border: 1px solid rgb(73, 80, 119);
     
   }
@@ -325,4 +326,10 @@
     margin: 8px 0;
     border:1px solid black;
     transition: width 0.4s ease-in-out;
+}
+
+.imageinsquare img{
+  max-width: 100%;
+  object-fit: cover;
+  aspect-ratio: 1/1;
 }

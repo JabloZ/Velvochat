@@ -35,6 +35,7 @@ urlpatterns = [
     path('editprofile', views.index, name='index'),
     path('allchats', views.index, name='index'),
     path('chat/<id>', views.index, name='index'),
+    path('allfriends/<str:username>', views.index, name='index'),
 
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

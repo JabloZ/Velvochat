@@ -86,7 +86,7 @@ class ProfileView(APIView):
 		serialized=serializer.data
 		serialized["friends"]=new_friend_list
 		
-		return Response({'profile': serialized, 'user':serializeuser.data}, status=status.HTTP_200_OK)
+		return Response({'profile': serialized, 'user':serializeuser.data, 'flistlength':len(new_friend_list)}, status=status.HTTP_200_OK)
 
 class editProfile(APIView):
 	permission_classes = (permissions.IsAuthenticated,)

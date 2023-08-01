@@ -165,7 +165,7 @@ class ShowChat(APIView):
             print(choosen_group)
             print(choosen_group.members.all())
             all_members=[{"username":x.user.username, "image":x.image.url if x.image else ""} for x in choosen_group.members.all()]
-            return Response({"group":{"name":choosen_group.name, "image":choosen_group.image.url, "type":choosen_group.type, "members":all_members}}, status=status.HTTP_200_OK)
+            return Response({"group":{"name":choosen_group.name, "image":choosen_group.image.url if choosen_group.image else "", "type":choosen_group.type, "members":all_members}}, status=status.HTTP_200_OK)
         else:
             print('nieautoryzowany')
             return Response("",status=status.HTTP_401_UNAUTHORIZED)
@@ -189,9 +189,12 @@ class SendMessage(APIView):
         try:
             groupWherePosted=GroupChat.objects.get(id=group_id)
             if request.user.profile in groupWherePosted.members.all():
-                mes=Message(text=request.data["text"], author=request.user.profile, belongs_to=groupWherePosted)
-                mes.save()
-                return Response("",status=status.HTTP_201_CREATED)
+                if request.data["text"]!='':
+                    mes=Message(text=request.data["text"], author=request.user.profile, belongs_to=groupWherePosted)
+                    mes.save()
+                    return Response("",status=status.HTTP_201_CREATED)
+                else:
+                    return Response("",status=status.HTTP_400_BAD_REQUEST)
             else:
                 return Response("", status=status.HTTP_401_UNAUTHORIZED)
         except:
@@ -243,3 +246,13 @@ class CreatePrivateChat(APIView):
                 return Response({},status=status.HTTP_201_CREATED)
         except:
             return Response({},status=status.HTTP_400_BAD_REQUEST)
+        
+class ShowUserFriends(APIView):
+    def get(self, request, *args, **kwargs):  
+        get_user_account=Account.objects.get(username=kwargs["username"])
+        get_user_profile=Profile.objects.get(user=get_user_account)
+        all_friends=get_user_profile.friends.all()
+
+        n=[{"name":x.user.username, "image":x.image.url if x.image else ""} for x in all_friends]
+        print(len(n),len(all_friends))
+        return Response({'friends':n, 'flistlength':len(all_friends)}, status=status.HTTP_200_OK)
