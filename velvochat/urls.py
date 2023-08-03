@@ -36,7 +36,7 @@ urlpatterns = [
     path('allchats', views.index, name='index'),
     path('chat/<id>', views.index, name='index'),
     path('allfriends/<str:username>', views.index, name='index'),
-
+    path('creategroup', views.index, name='index'),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

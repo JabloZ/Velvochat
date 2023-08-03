@@ -24,13 +24,14 @@ function SingleChatPage(props){
     const chatSocket = new WebSocket(url)
    
   
-
+    const navigate=useNavigate();
     const [usernameS, setUsernameS]=useState('');
     const message = useRef(null);
     const [messages, updateMessages]=useState([]);
     const [name, updateName]=useState([]);
     const [image, updateImage]=useState([]);
-
+    const [members, setMembers]=useState([]);
+    const [membersVisible, setMembersVisible] = useState(false);
 
     useEffect(()=>{
         
@@ -51,7 +52,7 @@ function SingleChatPage(props){
     },[]);
     useEffect(()=>{
         messagesEndRef.current.scrollIntoView()
-    },[messages]);
+    },[messages, membersVisible]);
     
 
     function sendMessage(e) {
@@ -97,6 +98,7 @@ function SingleChatPage(props){
                 if (data.group.image != ''){
                     updateImage(data.group.image)
                 }
+                setMembers(data.group.members)
                
             })
             )
@@ -109,9 +111,33 @@ function SingleChatPage(props){
             })
             )
     };
-
-    
-   
+    const UserKicked = e =>{
+        e.preventDefault();
+        client.post(
+            "chatapp/deletefromgroup",
+            {
+                "group":chat_id,
+                "username":e.target.dataset.username
+            }
+        )
+        document.getElementById(e.target.dataset.username).remove();
+    }
+    function UserLeavesGroup(){
+        client.post(
+            "chatapp/leavegroup/"+chat_id,
+            {
+            
+            }
+        ).then(
+            navigate("/allchats")
+        )
+    }
+    const CloseClicked=(e)=>{
+        setMembersVisible(false)
+    }
+    const MembersClicked=(e)=>{
+        setMembersVisible(true)
+    }
 
     return(
         <div className="central-div">
@@ -125,12 +151,30 @@ function SingleChatPage(props){
     function ChatDisplay(props){
         const downbarStyle={
             maxHeight:'10vh',
+            minHeight:'10vh',
             backgroundColor:'#353c55'
             }
         return(
+            
         <div className='chatdiv'>
+           
             <div className='chatAssist'>
+            
+                {membersVisible?( <div className="membersdiv">
+                    <div className="membersdivtop">
+                        <a href="#" onClick={CloseClicked}>Close</a>
+                        <p>All chat members</p>
+                    </div>
+                    <div className="membersinside">
+                    {members.map(item=>(
+                    <MemberPannel username={item.username} image={item.image} isAdmin={item.admin}/>
+                        ))}
+                    </div>
+                </div>):(<></>)}
+              
+            
             <div className='chatOpened'>
+                
                 <div className='chatNavbar' style={downbarStyle}>
                     <div className='usimContainer' >
                         <div className='square' >
@@ -138,10 +182,14 @@ function SingleChatPage(props){
                             {image ? (<img src={props.image}></img>):(<></>)}
                             
                         </div>
+                        
                         </div><p>{props.name}</p></div>
                         <div className='chatRight'>
+                        <a href="#" style={{backgroundColor:'#81a2db'}} onClick={MembersClicked}>Members</a>
+
                         <a href="#" style={{backgroundColor:'#a1a8b3'}}>Settings</a>
-                        <a href="#" style={{backgroundColor:'#a01c1c'}}>Exit</a>
+                        
+                        <a href="#" style={{backgroundColor:'#a01c1c'}} onClick={UserLeavesGroup}>Leave</a>
                     </div>
                 </div>
                 <div className='chatInside' id="messages">
@@ -185,6 +233,50 @@ function SingleChatPage(props){
             </div>
             )
         }
+    }
+    function MemberPannel(propsM){
+        const [isAdmin, setIsAdmin] = useState([])
+        const [isUser, setIsUser] = useState([])
+        useEffect(()=>{
+            if (propsM.username==props.loggedUser.username){
+                setIsUser(true)
+            }
+            else{
+                setIsUser(false)
+            }
+            if (propsM.isAdmin=="yes"){
+                setIsAdmin(true)
+            }
+            else{
+                setIsAdmin(false)
+            }
+        });
+        return(
+            
+            <div className="divMember" id={propsM.username}>
+                
+                <a href={"/profile/"+propsM.username} target="_blank"><img src={propsM.image}></img></a>
+                <a href={"/profile/"+propsM.username} target="_blank">{propsM.username}</a>
+                {   
+                    isAdmin ? (
+                        <p style={{border: "1px dashed rgb(92, 212, 245)"}}>Admin</p>
+                    ):(
+                        isUser ? (
+                            <p style={{border: "1px dashed rgb(220, 241, 247)"}}>Member</p>
+                        ):(
+                            <>
+                                <p style={{border: "1px dashed rgb(220, 241, 247)"}}>Member</p>
+                                <a className="KickButton" href="#" onClick={UserKicked} data-username={propsM.username}>Kick user</a>
+                            </>
+
+                        )
+                        
+                    )
+                }
+                
+
+            </div>
+        )
     }
 }
 export default SingleChatPage

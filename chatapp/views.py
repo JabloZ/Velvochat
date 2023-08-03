@@ -164,7 +164,7 @@ class ShowChat(APIView):
         if request.user.profile in choosen_group.members.all():
             print(choosen_group)
             print(choosen_group.members.all())
-            all_members=[{"username":x.user.username, "image":x.image.url if x.image else ""} for x in choosen_group.members.all()]
+            all_members=[{"username":x.user.username, "image":x.image.url if x.image else "", "admin":'yes' if x.user.profile in choosen_group.admins.all() else 'no'} for x in choosen_group.members.all()]
             return Response({"group":{"name":choosen_group.name, "image":choosen_group.image.url if choosen_group.image else "", "type":choosen_group.type, "members":all_members}}, status=status.HTTP_200_OK)
         else:
             print('nieautoryzowany')
@@ -256,3 +256,46 @@ class ShowUserFriends(APIView):
         n=[{"name":x.user.username, "image":x.image.url if x.image else ""} for x in all_friends]
         print(len(n),len(all_friends))
         return Response({'friends':n, 'flistlength':len(all_friends)}, status=status.HTTP_200_OK)
+
+class CreateGroup(APIView):
+    def post(self, request, *args, **kwargs):
+        group_name=request.data["name"]
+        if group_name!="":
+            print(request.data)
+            if request.data["image"]:
+                group_image=request.data["image"]
+            else:
+                group_image=""
+            g=GroupChat(name=group_name, image=group_image, type="group")
+            g.save()
+            g.members.add(request.user.profile)
+            g.admins.add(request.user.profile)
+            return Response({"group":g.id},status=status.HTTP_201_CREATED)
+        
+class LeaveGroup(APIView):
+    def post(self, request, *args, **kwargs):
+        
+        group=GroupChat.objects.get(id=kwargs["id"])
+        if group.type!="private":
+            group.members.remove(request.user.profile)
+            group.admins.remove(request.user.profile)
+            if len(list(group.members.all()))<1:
+                group.delete()
+            return Response(status=status.HTTP_202_ACCEPTED)
+        
+class DeleteFromGroup(APIView):
+    def post(self, request, *args, **kwargs):
+        print(request.data)
+        group=GroupChat.objects.get(id=request.data["group"])
+        print(group)
+        user=Account.objects.get(username=request.data["username"])
+        print(user)
+        profile=Profile.objects.get(user=user)
+        print(profile)
+
+        if group.type!="private" and request.user.profile in group.admins.all() and profile not in group.admins.all():
+            print('none')
+            group.members.remove(profile)
+            group.admins.remove(profile)
+            return Response(status=status.HTTP_202_ACCEPTED)
+    

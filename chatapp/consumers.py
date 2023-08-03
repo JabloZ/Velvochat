@@ -9,13 +9,14 @@ class ChatConsumer(WebsocketConsumer):
         self.room_id = self.scope['url_route']['kwargs']['id']
         self.room_group_id= f'chat_{self.room_id}'
         self.room = GroupChat.objects.get(id=self.room_id)
-
+       
         self.accept()
-
+        
         async_to_sync(self.channel_layer.group_add)(
             self.room_group_id,
             self.channel_name
         )
+        
 
 
     def receive(self, text_data):

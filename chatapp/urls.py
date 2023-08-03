@@ -18,6 +18,8 @@ urlpatterns=[
     path('privatechatexists/<username>', views.PrivateChatExists.as_view(), name='privatechatexists'),
     path('createprivatechat/<username>', views.CreatePrivateChat.as_view(), name='createprivatechat'),
     path('showuserfriends/<username>', views.ShowUserFriends.as_view(), name='showuserfriends'),
-    
+    path('creategroup', views.CreateGroup.as_view(), name='creategroup'),
+    path('leavegroup/<id>', views.LeaveGroup.as_view(), name='leavegroup'),
+    path('deletefromgroup', views.DeleteFromGroup.as_view(), name='deletefromgroup')
     
 ]

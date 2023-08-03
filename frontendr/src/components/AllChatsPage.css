@@ -20,13 +20,17 @@
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
     flex-direction: column;
+    align-items: center;
+    overflow-x:hidden;
    
     
 }
 
 .Socialdisplay{
+    border-radius: 20px;
     display: grid;
     grid-template-columns: 25% 75% ;
+    min-width: 100%;
     border: 1px solid rgb(73, 80, 119);
     
   }
@@ -73,3 +77,10 @@
     border-radius: 50%;
     
   }
+.createbutton{
+  background-color: #16a360;
+  max-width: 40%;
+  padding:24px 12px;
+  border-radius: 12px;
+  text-align: center;
+}

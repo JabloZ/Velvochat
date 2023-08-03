@@ -33,8 +33,12 @@ function ChatsPage(){
     return(
         
         <div className="CentralDiv">
+            
             <NavBar/>
+                
                 <div className="RequestsContainer" style={{backgroundColor:"rgb(81 88 117)"}}>
+                    <a className="createbutton" href="/creategroup">Create group</a>
+                    <br></br>
                     {groups.map(item => (
                         <GroupBox obj={item} name={item.name} image={item.image} id={item.id}/> 
                     ))} 
