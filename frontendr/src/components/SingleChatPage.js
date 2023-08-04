@@ -27,11 +27,14 @@ function SingleChatPage(props){
     const navigate=useNavigate();
     const [usernameS, setUsernameS]=useState('');
     const message = useRef(null);
+    const invited = useRef(null);
     const [messages, updateMessages]=useState([]);
     const [name, updateName]=useState([]);
     const [image, updateImage]=useState([]);
     const [members, setMembers]=useState([]);
+    
     const [membersVisible, setMembersVisible] = useState(false);
+    const [userIsAdmin, setUserIsAdmin] = useState(false)
 
     useEffect(()=>{
         
@@ -99,7 +102,13 @@ function SingleChatPage(props){
                     updateImage(data.group.image)
                 }
                 setMembers(data.group.members)
-               
+                if (data.group.admin=="yes"){
+                    setUserIsAdmin(true)
+                }
+                else{
+                    setUserIsAdmin(false)
+                }
+                
             })
             )
     };
@@ -121,6 +130,20 @@ function SingleChatPage(props){
             }
         )
         document.getElementById(e.target.dataset.username).remove();
+    }
+    function InviteUser(e){
+        e.preventDefault();
+        client.post(
+            "chatapp/addtogroup/"+chat_id,
+            {
+                "user":invited.current.value
+            }
+        ).then(
+            response =>{
+                alert(response.data.info)
+                
+            })
+        invited=""
     }
     function UserLeavesGroup(){
         client.post(
@@ -185,9 +208,16 @@ function SingleChatPage(props){
                         
                         </div><p>{props.name}</p></div>
                         <div className='chatRight'>
+                        {userIsAdmin ? (
+                            <>
+                            <input placeholder="Add your friend to group" ref={invited} style={{minHeight:'5vh'}}/><a href="#" className="byinput" onClick={e => InviteUser(e)} style={{backgroundColor:"rgb(45 137 48)",marginLeft:"0px",borderTopLeftRadius:'0',borderBottomLeftRadius:'0'}}>Invite</a>
+                            </>
+                        ):(
+                            <></>
+                        )}
                         <a href="#" style={{backgroundColor:'#81a2db'}} onClick={MembersClicked}>Members</a>
 
-                        <a href="#" style={{backgroundColor:'#a1a8b3'}}>Settings</a>
+                        <a href={"/editgroup/"+chat_id} style={{backgroundColor:'#a1a8b3'}} >Settings</a>
                         
                         <a href="#" style={{backgroundColor:'#a01c1c'}} onClick={UserLeavesGroup}>Leave</a>
                     </div>
@@ -264,10 +294,13 @@ function SingleChatPage(props){
                         isUser ? (
                             <p style={{border: "1px dashed rgb(220, 241, 247)"}}>Member</p>
                         ):(
-                            <>
+                            userIsAdmin ? ( <>
                                 <p style={{border: "1px dashed rgb(220, 241, 247)"}}>Member</p>
                                 <a className="KickButton" href="#" onClick={UserKicked} data-username={propsM.username}>Kick user</a>
-                            </>
+                            </>):( <>
+                                <p style={{border: "1px dashed rgb(220, 241, 247)"}}>Member</p>
+                                
+                            </>)
 
                         )
                         

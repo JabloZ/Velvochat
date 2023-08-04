@@ -20,6 +20,8 @@ urlpatterns=[
     path('showuserfriends/<username>', views.ShowUserFriends.as_view(), name='showuserfriends'),
     path('creategroup', views.CreateGroup.as_view(), name='creategroup'),
     path('leavegroup/<id>', views.LeaveGroup.as_view(), name='leavegroup'),
-    path('deletefromgroup', views.DeleteFromGroup.as_view(), name='deletefromgroup')
-    
+    path('deletefromgroup', views.DeleteFromGroup.as_view(), name='deletefromgroup'),
+    path('editgroup/<id>', views.EditGroup.as_view(), name='editgroup'),
+    path('deletegrouppicture/<id>', views.DeleteGroupPicture.as_view(), name='deletegrouppicture'),
+    path('addtogroup/<id>', views.AddToGroup.as_view(),name='addtogroup')
 ]

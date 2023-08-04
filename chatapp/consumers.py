@@ -37,6 +37,7 @@ class ChatConsumer(WebsocketConsumer):
         )
 
     def chat_message(self, event):
+        print('to chyba nie ma miejsca nawet \n ka')
         message = event['message']
         date=event["date"]
         author=event["author"]
@@ -48,7 +49,7 @@ class ChatConsumer(WebsocketConsumer):
             'date':date
         }))
     def disconnect(self, close_code):
-        print(close_code,'owboy')
+        
         async_to_sync(self.channel_layer.group_discard)(
             self.room_group_id,
             self.channel_name,

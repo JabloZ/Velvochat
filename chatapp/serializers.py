@@ -11,3 +11,9 @@ class FriendsRequestSerializer(serializers.ModelSerializer):
         model=FriendsRequestModel
         fields=('who_send','who_received')
 
+class GroupChatEditSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=FriendsRequestModel
+        fields=('name','image')
+
+

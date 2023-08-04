@@ -19,6 +19,7 @@ import ChatsPage from './components/AllChatsPage';
 import SingleChatPage from './components/SingleChatPage';
 import AllFriendsPage from './components/AllFriendsPage';
 import CreateGroupPage from './components/CreateGroupPage';
+import EditGroupPage from './components/EditGroupPage';
 import axios from 'axios';
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux'
@@ -67,6 +68,7 @@ function App(props) {
         <Route path="/chat/:chat_id" Component={() => (<SingleChatPage loggedUser={loggedUser} loggedUserProfile={loggedUserProfile}/>)}></Route>
         <Route path="/allfriends/:username_prof" Component={() => (<AllFriendsPage/>)}></Route>
         <Route path="/creategroup" Component={() => (<CreateGroupPage/>)}></Route>
+        <Route path="/editgroup/:chat_id" Component={() => (<EditGroupPage/>)}></Route>
       </Routes>
     </Router>
 

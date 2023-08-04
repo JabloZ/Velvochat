@@ -121,7 +121,7 @@
   }
   .chatNavbar a{
     padding: 16px;
-  
+    text-align: center;
   }
   
   .chatNavbar .square{
@@ -340,4 +340,14 @@
 .divMember a{
   max-height: 10vh;
   margin:8px;
+}
+.chatRight input{
+  padding: 16px;
+  border: 0;
+
+}
+.chatRight .byinput{
+  text-align: center;
+  border-top-right-radius: 12px;
+  border-bottom-right-radius: 12px;
 }

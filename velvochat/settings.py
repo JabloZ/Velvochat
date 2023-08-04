@@ -12,10 +12,13 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 
 from pathlib import Path
 import os
+import subprocess
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
+if not os.environ.get('DOCKER_RUN_COMPLETED'):
+    subprocess.run(["docker", "run", "-d", "-p", "6379:6379", "--name", "redis_container", "redis:5"])
+    os.environ['DOCKER_RUN_COMPLETED'] = '1'
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 

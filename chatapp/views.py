@@ -8,7 +8,7 @@ from django.contrib.auth.decorators import login_required
 from .models import FriendsRequest, GroupChat, Message
 from chatapp.models import Profile, Account
 from django.shortcuts import get_object_or_404, Http404
-from .serializers import FriendsRequestSerializer
+from .serializers import FriendsRequestSerializer, GroupChatEditSerializer
 import json
 from django.core.serializers.json import DjangoJSONEncoder
 from .validations import validate_request
@@ -108,7 +108,6 @@ class ResponseToFriendsRequest(APIView):
             request_processed=FriendsRequest.objects.get(id=kwargs["id"])
             print(request_processed)
             if request.user.profile==request_processed.who_received:
-                print('zaraz akcept pojdzie jo')
                 
                 request.user.profile.friends.add(request_processed.who_send)
                 request_processed.who_send.friends.add(request.user.profile)
@@ -165,7 +164,7 @@ class ShowChat(APIView):
             print(choosen_group)
             print(choosen_group.members.all())
             all_members=[{"username":x.user.username, "image":x.image.url if x.image else "", "admin":'yes' if x.user.profile in choosen_group.admins.all() else 'no'} for x in choosen_group.members.all()]
-            return Response({"group":{"name":choosen_group.name, "image":choosen_group.image.url if choosen_group.image else "", "type":choosen_group.type, "members":all_members}}, status=status.HTTP_200_OK)
+            return Response({"group":{"name":choosen_group.name, "image":choosen_group.image.url if choosen_group.image else "", "type":choosen_group.type, "members":all_members, "admin":"yes" if request.user.profile in choosen_group.admins.all() else "no"}}, status=status.HTTP_200_OK)
         else:
             print('nieautoryzowany')
             return Response("",status=status.HTTP_401_UNAUTHORIZED)
@@ -299,3 +298,58 @@ class DeleteFromGroup(APIView):
             group.admins.remove(profile)
             return Response(status=status.HTTP_202_ACCEPTED)
     
+class EditGroup(APIView):
+    print('to nawet kurwa nie dociera xD')
+    def get(self, request, *args, **kwargs):
+
+        group=GroupChat.objects.get(id=kwargs['id'])
+        if request.user.profile in group.admins.all():
+            return Response({"authorized":"yes", "name":group.name, "image":group.image.url if group.image else ""}, status=status.HTTP_200_OK)
+        else:
+            return Response({"authorized":"no"}) 
+        
+    def post(self,request, *args, **kwargs):
+        print('gowno zajebane')
+        print(request.data,'fasgasgasonjigbnasovov9u')
+        group=GroupChat.objects.get(id=kwargs["id"])
+        if request.user.profile in group.admins.all():
+            serializer=GroupChatEditSerializer(group)
+            if "image" in request.data:
+                group.image.delete(save=True)
+                print(request.data["image"], 'grupa image')
+                group.image.save(request.data["image"].name, request.data["image"])
+            if "name" in request.data:
+                group.name=str(request.data["name"])
+                group.save()
+            return Response({"group":group.id},status=status.HTTP_202_ACCEPTED)
+        else:
+            return Response("You are unathorized to do this (not a group admin)")
+        
+class DeleteGroupPicture(APIView):
+    def post(self, request, *args, **kwargs):
+        group=GroupChat.objects.get(id=kwargs["id"])
+        if request.user.profile in group.admins.all():
+            group.image.delete(save=True)
+            return Response({''}, status=status.HTTP_200_OK)
+        else:
+            return Response("You are unathorized to do this (not a group admin)")
+        
+class AddToGroup(APIView):
+    def post(self,request, *args, **kwargs):
+        group=GroupChat.objects.get(id=kwargs["id"])
+        try:
+            Iuser=Account.objects.get(username=request.data["user"])
+            Puser=Profile.objects.get(user=Iuser)
+        except:
+            return Response({"info":"user not found"})
+        if request.user.profile in group.admins.all():
+            if Puser in group.members.all():
+                return Response({"info":"user already in group"}) 
+            elif Puser not in request.user.profile.friends.all():
+                return Response({"info":"user not in friends"}) 
+            else:
+                group.members.add(Puser)
+                return Response({"info":"user succesfully added"},status=status.HTTP_202_ACCEPTED)
+        else:
+            return Response({"info":"something else went wrong."})
+
