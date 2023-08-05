@@ -19,9 +19,8 @@ function SingleChatPage(props){
     let {chat_id} = useParams();
 
     const messagesEndRef = React.createRef();
-
-    let url=`ws://${window.location.host}/ws/socket-server/chat/${chat_id}/`
-    const chatSocket = new WebSocket(url)
+    const chatSocketRef = useRef(null)
+   
    
   
     const navigate=useNavigate();
@@ -35,24 +34,41 @@ function SingleChatPage(props){
     
     const [membersVisible, setMembersVisible] = useState(false);
     const [userIsAdmin, setUserIsAdmin] = useState(false)
-
+   
+    
     useEffect(()=>{
-        
-        setUsernameS(props.loggedUser.username)
         catchGroupInfo();
+        catchGroupMessages();
+        
+        chatSocketRef.current = initializeWebSocket();
+    },[])
+    function initializeWebSocket(){
+        let url=`ws://${window.location.host}/ws/socket-server/chat/${chat_id}/`
+        const chatSocket = new WebSocket(url)
         chatSocket.onmessage = function(e){
             let data = JSON.parse(e.data)
-            console.log('Data:', data)
-           
-                updateMessages(current => [...current, {author: data.author, text: data.message, date: data.date}])
+                if (data.type=="chat"){
+                    updateMessages(current => [...current, {author: data.author, text: data.message, date: data.date}])
+                }
+                else if(data.type=="members"){
+                    if (data.action=="delete"){
+                        setMembers(prevMembers => prevMembers.filter(item => item.username !== data.user.username))
+                        
+
+                    }
+                    else if(data.action=="add"){
+                        setMembers(prevMembers => [
+                            ...prevMembers,
+                            { username: data.user.username, image: data.user.image, isAdmin: data.user.isAdmin }
+                          ]);
+
+                    }
+                }
             
         };
-    },[]);
-
-   
-    useEffect(()=>{
-        catchGroupMessages();
-    },[]);
+        return chatSocket;
+    }
+    
     useEffect(()=>{
         messagesEndRef.current.scrollIntoView()
     },[messages, membersVisible]);
@@ -81,10 +97,11 @@ function SingleChatPage(props){
             }
         );
         
-        chatSocket.send(JSON.stringify({
+        chatSocketRef.current.send(JSON.stringify({
             "message":message.current.value,
             "author":props.loggedUser.username,
             "date":formattedToday,
+            "action_type":"message",
         }))
     
 
@@ -102,6 +119,8 @@ function SingleChatPage(props){
                     updateImage(data.group.image)
                 }
                 setMembers(data.group.members)
+                console.log(data.group.members)
+                
                 if (data.group.admin=="yes"){
                     setUserIsAdmin(true)
                 }
@@ -128,8 +147,17 @@ function SingleChatPage(props){
                 "group":chat_id,
                 "username":e.target.dataset.username
             }
-        )
-        document.getElementById(e.target.dataset.username).remove();
+        ).then(response=>{
+            chatSocketRef.current.send(JSON.stringify({
+                "action_type":"members",
+                "user":e.target.dataset.username,
+                "action":"delete"
+    
+            }));
+            
+        })
+
+        
     }
     function InviteUser(e){
         e.preventDefault();
@@ -141,8 +169,15 @@ function SingleChatPage(props){
         ).then(
             response =>{
                 alert(response.data.info)
-                
-            })
+                console.log(response.data.info)
+            },
+            chatSocketRef.current.send(JSON.stringify({
+                "action_type":"members",
+                "user":invited.current.value,
+                "action":"add"
+    
+            }))
+            )
         invited=""
     }
     function UserLeavesGroup(){

@@ -1,4 +1,4 @@
-import React, {Component, useState} from "react";
+import React, {Component, useState, useEffect} from "react";
 import './HomePage.css';
 import Dropdown from 'react-bootstrap/Dropdown';
 import NavBar from './Navbar'
@@ -16,16 +16,28 @@ const client = axios.create({
 });
 
   function HomePage(props){
-
+    /* allusergroups */
+    useEffect(()=>{
+      getUserGroups();
+    },[])
+    const [groups, setGroups] = useState([])
     const DB=props.loggedUser
     const UP=props.loggedUserProfile
     const username=DB.username
     const friends=UP.friends
+  
+    function getUserGroups(){
+      return fetch('chatapp/allusergroups').then(response=>response.json().then(data=>{
+        setGroups(data.groups)
+      }))
+        
+      
+    }
     return (
       
       <div className="App">
         <NavBar LoggedUserUsername={username}></NavBar>
-        <SideBar UserFriends={friends}></SideBar>
+        <SideBar UserFriends={friends} UserGroups={groups}></SideBar>
         <ChatDisplay></ChatDisplay>
         
       </div>
@@ -70,7 +82,7 @@ const client = axios.create({
           
         {props.UserFriends.map(item => (
           <div className='socCon'>
-            <SocialDisplay obj={item} key={item.username} social_name={item.username} social_picture={item.image}/>
+            <SocialDisplay obj={item} key={item.username} social_name={item.username} social_picture={item.image} tohref={"/profile/"+item.username}/>
           </div>
         ))} 
           
@@ -79,7 +91,11 @@ const client = axios.create({
       <div className="socialBar" style={groupsstyle}>
       <h4 style={{color:"white"}}>Groups</h4>
       <div className='friendscontainer' style={socialcontainer}>
-          
+        {props.UserGroups.map(item => (
+          <div className='socCon'>
+            <SocialDisplay obj={item} key={item.name} social_name={item.name} social_picture={item.image} tohref={"/chat/"+item.id}/>
+          </div>
+        ))} 
           
         </div>
       </div>
@@ -96,7 +112,8 @@ const client = axios.create({
     }
     return(
       <div className="Socialdisplay">
-       <div className='square' ><a href={"/profile/"+props.social_name}><div className="imageinsquare"><img src={'http://127.0.0.1:8000'+props.social_picture}></img></div></a></div><p><a href={"/profile/"+props.social_name} style={{fontSize:'14px'}}>{props.social_name}</a><p1 style={onlinestyle}>35min ago</p1></p><p style={{textAlign:'left', fontSize:'12px'}}>X: Maybe</p>
+        
+       <div className='square' ><a href={props.tohref}><div className="imageinsquare"><img src={'http://127.0.0.1:8000'+props.social_picture}></img></div></a></div><p><a href={props.tohref} style={{fontSize:'14px'}}>{props.social_name}</a><p1 style={onlinestyle}>35min ago</p1></p><p style={{textAlign:'left', fontSize:'12px'}}>X: Maybe</p>
         
       </div>
     )

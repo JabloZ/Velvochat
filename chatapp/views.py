@@ -151,7 +151,7 @@ class ShowUserGroups(APIView):
     def get(self, request, *args, **kwargs):  
         all_groups=GroupChat.objects.filter(members=request.user.profile)
         print(all_groups)
-        n=[{"name":x.name, "id":x.id, "image":x.image.url if x.image else ""} for x in all_groups]
+        n=[{"name":x.name, "id":x.id, "image":x.image.url if x.image else "", "type":x.type} for x in all_groups]
         print(n)
         return Response({'groups':n}, status=status.HTTP_200_OK)
     

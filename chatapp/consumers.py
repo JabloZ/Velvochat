@@ -1,7 +1,8 @@
 from channels.generic.websocket import WebsocketConsumer
 import json
 from asgiref.sync import async_to_sync
-from .models import GroupChat
+from .models import GroupChat, Profile
+from accounts.models import Account
 
 class ChatConsumer(WebsocketConsumer):
     def connect(self):
@@ -22,19 +23,58 @@ class ChatConsumer(WebsocketConsumer):
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
         
-        message = text_data_json['message']
-        date=text_data_json["date"]
-        author=text_data_json["author"]
+        
+        action_type=text_data_json["action_type"]
 
-        async_to_sync(self.channel_layer.group_send)(
-            self.room_group_id,
-            {
-                'type':'chat_message',
-                'message':message,
-                "author":author,
-                "date":date
-            }
-        )
+        if action_type=="message":
+            message = text_data_json['message']
+            date=text_data_json["date"]
+            author=text_data_json["author"]
+
+            async_to_sync(self.channel_layer.group_send)(
+                self.room_group_id,
+                {
+                    'type':'chat_message',
+                    'message':message,
+                    "author":author,
+                    "date":date
+                }
+            )
+        #"members_type":"delete",
+        #"user":e.target.dataset.username
+        elif action_type=="members":
+            if text_data_json["action"]=="delete":
+                async_to_sync(self.channel_layer.group_send)(
+                    self.room_group_id,
+                    {
+                        'type':'members_change',
+                        'user':text_data_json["user"],
+                        'action':text_data_json["action"]
+                    }
+                )
+            elif text_data_json["action"]=="add":
+                async_to_sync(self.channel_layer.group_send)(
+                    self.room_group_id,
+                    {
+                        'type':'members_change',
+                        'user':text_data_json["user"],
+                        'action':text_data_json["action"]
+                    }
+                )
+    def members_change(self, event):
+        userE = event['user']
+        type = event['type']
+        action=event['action']
+        acc=Account.objects.get(username=userE)
+        prof=Profile.objects.get(user=acc)
+
+        self.send(text_data=json.dumps({
+            'type':'members',
+            'user':{'username':userE,'image':prof.image.url if prof.image else "", 'isAdmin':"no"},
+            'action':action
+        }))
+
+
 
     def chat_message(self, event):
         print('to chyba nie ma miejsca nawet \n ka')
@@ -48,6 +88,7 @@ class ChatConsumer(WebsocketConsumer):
             'author':author,
             'date':date
         }))
+
     def disconnect(self, close_code):
         
         async_to_sync(self.channel_layer.group_discard)(
