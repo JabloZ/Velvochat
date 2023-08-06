@@ -30,14 +30,16 @@ class ChatConsumer(WebsocketConsumer):
             message = text_data_json['message']
             date=text_data_json["date"]
             author=text_data_json["author"]
-
+            files=text_data_json["files"]
+            print(files)
             async_to_sync(self.channel_layer.group_send)(
                 self.room_group_id,
                 {
                     'type':'chat_message',
                     'message':message,
                     "author":author,
-                    "date":date
+                    "date":date,
+                    "files":files
                 }
             )
         #"members_type":"delete",
@@ -81,12 +83,14 @@ class ChatConsumer(WebsocketConsumer):
         message = event['message']
         date=event["date"]
         author=event["author"]
-
+        files = event['files']
+        print(files)
         self.send(text_data=json.dumps({
             'type':'chat',
             'message':message,
             'author':author,
-            'date':date
+            'date':date,
+            "files":files
         }))
 
     def disconnect(self, close_code):

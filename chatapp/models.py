@@ -2,7 +2,7 @@ from django.db import models
 import datetime
 from accounts.models import Account
 from django.db.models.signals import post_save
-
+from .validations import validate_file_extension
 def upload_location_profile_image(instance, filename):
     file_path='images/users/{user}/profile-picture/{filename}'.format(user=str(instance.id), filename=filename)
     return str(file_path)
@@ -52,9 +52,13 @@ class FriendsRequest(models.Model):
 
 
 def upload_location_groupchat_message(instance, filename):
-    file_path='images/groups/{groupname}/{filename}'.format(groupname=str(instance.belongs_to.id), filename=filename)
+    file_path='images/groups/{groupname}/{filename}'.format(groupname=str(instance.id), filename=filename)
     return str(file_path)
 
+class File(models.Model):
+    file=models.FileField(upload_to=upload_location_groupchat_message, validators=[validate_file_extension])
+    
+    
 class Message(models.Model):
     now=datetime.datetime.now()
 
@@ -63,6 +67,7 @@ class Message(models.Model):
     text=models.TextField(max_length=500, blank=False, null=True)
     date=models.DateTimeField(auto_now_add=True, blank=True)
     belongs_to=models.ForeignKey(GroupChat, null=True, on_delete=models.CASCADE)
+    files=models.ManyToManyField(File, null=True, blank=True, related_name='messages')
 
     def __str__(self):
         return str(str(self.id) + ' ' + self.text+' '+str(self.belongs_to))

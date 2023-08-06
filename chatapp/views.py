@@ -5,10 +5,11 @@ from rest_framework.response import Response
 from rest_framework import permissions, status
 from django.core import serializers
 from django.contrib.auth.decorators import login_required
-from .models import FriendsRequest, GroupChat, Message
+from .models import FriendsRequest, GroupChat, Message, File
 from chatapp.models import Profile, Account
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.shortcuts import get_object_or_404, Http404
-from .serializers import FriendsRequestSerializer, GroupChatEditSerializer
+from .serializers import FriendsRequestSerializer, GroupChatEditSerializer, FileSerializer
 import json
 from django.core.serializers.json import DjangoJSONEncoder
 from .validations import validate_request
@@ -112,9 +113,7 @@ class ResponseToFriendsRequest(APIView):
                 request.user.profile.friends.add(request_processed.who_send)
                 request_processed.who_send.friends.add(request.user.profile)
                 request_processed.delete()
-                g=GroupChat(type='private', name=request.user.username+", "+request_processed.who_send.user.username)
-                g.save()
-                g.members.add(*[request.user.profile, request_processed.who_send])
+                
                 
             else:
                 print('wtf ziomus nie zaakceptujemy tego od cb')
@@ -174,8 +173,21 @@ class ShowMessages(APIView):
         choosen_group=GroupChat.objects.get(id=kwargs["id"])
         if request.user.profile in choosen_group.members.all():
             messages=Message.objects.filter(belongs_to=choosen_group)
-            
-            messages_returned=[{"author":x.author.user.username, "text":x.text, "date":datetime.datetime.strptime(str(x.date)[0:10], "%Y-%m-%d").strftime('%d/%m/%Y')} for x in messages]
+            #messages_returned=[{"author":x.author.user.username, "text":x.text, "date":datetime.datetime.strptime(str(x.date)[0:10], "%Y-%m-%d").strftime('%d/%m/%Y'), 'files':x.files} for x in messages]
+            messages_returned=[]
+            for x in messages:
+                one_mes={}
+                one_mes["author"]=x.author.user.username
+                one_mes["text"]=x.text
+                one_mes["date"]=datetime.datetime.strptime(str(x.date)[0:10], "%Y-%m-%d").strftime('%d/%m/%Y')
+                print('fasfasfasfas')
+                files_container=[]
+                for file in x.files.all():
+                    files_container.append(file.file.url)
+
+                one_mes["files"]=files_container
+                messages_returned.append(one_mes)
+
             return Response({"group_messages":messages_returned}, status=status.HTTP_200_OK)
         else:
             print('nieautoryzowany')
@@ -188,12 +200,22 @@ class SendMessage(APIView):
         try:
             groupWherePosted=GroupChat.objects.get(id=group_id)
             if request.user.profile in groupWherePosted.members.all():
-                if request.data["text"]!='':
+                
                     mes=Message(text=request.data["text"], author=request.user.profile, belongs_to=groupWherePosted)
                     mes.save()
-                    return Response("",status=status.HTTP_201_CREATED)
-                else:
-                    return Response("",status=status.HTTP_400_BAD_REQUEST)
+                    files = request.data.getlist('files[]', [])
+                    all_fil=[]
+                    files_url=[]
+                    for uploaded_file in files:  
+                        file_instance = File(file=uploaded_file)
+                        file_instance.save()
+                        all_fil.append(file_instance)
+                        files_url.append(file_instance.file.url)
+                    
+                    mes.files.set(all_fil)
+                    serializer = FileSerializer(all_fil, many=True)
+
+                    return Response({"files":files_url},status=status.HTTP_201_CREATED)
             else:
                 return Response("", status=status.HTTP_401_UNAUTHORIZED)
         except:

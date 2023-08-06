@@ -31,16 +31,20 @@ function SingleChatPage(props){
     const [name, updateName]=useState([]);
     const [image, updateImage]=useState([]);
     const [members, setMembers]=useState([]);
-    
+    const [files, setFiles]=useState([]);
     const [membersVisible, setMembersVisible] = useState(false);
+    const [filesVisible, setFilesVisible] = useState(false);
     const [userIsAdmin, setUserIsAdmin] = useState(false)
-   
+    const [fileId, setFileId] = useState(0)
+    const [filesUrl, setFilesUrl] = useState([])
+    
     
     useEffect(()=>{
         catchGroupInfo();
         catchGroupMessages();
-        
+        setUsernameS(props.loggedUser.username)
         chatSocketRef.current = initializeWebSocket();
+        
     },[])
     function initializeWebSocket(){
         let url=`ws://${window.location.host}/ws/socket-server/chat/${chat_id}/`
@@ -48,7 +52,7 @@ function SingleChatPage(props){
         chatSocket.onmessage = function(e){
             let data = JSON.parse(e.data)
                 if (data.type=="chat"){
-                    updateMessages(current => [...current, {author: data.author, text: data.message, date: data.date}])
+                    updateMessages(current => [...current, {author: data.author, text: data.message, date: data.date, files:data.files}])
                 }
                 else if(data.type=="members"){
                     if (data.action=="delete"){
@@ -71,7 +75,8 @@ function SingleChatPage(props){
     
     useEffect(()=>{
         messagesEndRef.current.scrollIntoView()
-    },[messages, membersVisible]);
+    },[messages, membersVisible, files, members, filesVisible]);
+  
     
 
     function sendMessage(e) {
@@ -87,29 +92,59 @@ function SingleChatPage(props){
 
         const formattedToday = dd + '/' + mm + '/' + yyyy;
 
-
+        console.log(files, 'fasfasfasgasgcvxc')
         client.post(
             "/chatapp/sendmessage/"+chat_id,
             {
                 "text":message.current.value,
                 "author":props.loggedUser.username,
                 "date":formattedToday,
+                "files":files
+            },{
+                headers: {
+                  'content-type': 'multipart/form-data'
+                }
             }
-        );
-        
-        chatSocketRef.current.send(JSON.stringify({
-            "message":message.current.value,
-            "author":props.loggedUser.username,
-            "date":formattedToday,
-            "action_type":"message",
-        }))
-    
+        ).then(response => {
+            // Odczytaj dane jako obiekt JSON
+            return response.data;
+          })
+          .then(data => {
+            // Odczytaj files_url z obiektu data
+            const files_url = data.files;
+            
+            console.log(files_url);
+            sendChatMessage(files_url);
+            
+          })
+          .catch(error => {
+            // Obsługa błędów
+            console.error('Błąd przy przetwarzaniu odpowiedzi:', error);
+          });
 
-        
-
-        message.current.value=null
       };
+      function sendChatMessage(files_url) {
+        
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        let mm = today.getMonth() + 1; // Months start at 0!
+        let dd = today.getDate();
 
+        if (dd < 10) dd = '0' + dd;
+        if (mm < 10) mm = '0' + mm;
+
+        const formattedToday = dd + '/' + mm + '/' + yyyy;
+
+        chatSocketRef.current.send(JSON.stringify({
+          "message": message.current.value,
+          "author": props.loggedUser.username,
+          "date": formattedToday,
+          "action_type": "message",
+          "files": files_url
+        }));
+        message.current.value=null
+        setFiles([])
+      }
 
     function catchGroupInfo(){
         return fetch("/chatapp/chatinfo/"+chat_id).then(response =>
@@ -136,8 +171,10 @@ function SingleChatPage(props){
         return fetch("/chatapp/chatmessages/"+chat_id).then(response =>
             response.json().then((data)=>{
                 updateMessages(data.group_messages)
-            })
+            }), messagesEndRef.current.scrollIntoView()
+            
             )
+            
     };
     const UserKicked = e =>{
         e.preventDefault();
@@ -159,6 +196,18 @@ function SingleChatPage(props){
 
         
     }
+    const changePicture = (e) => {
+        setFiles(current => [...current, e.target.files[0]])
+        
+    }
+    const deleteFile = (e) => {
+        e.preventDefault();
+        const updatedItems = [...files];
+        updatedItems.splice(e.target.id, 1);
+        setFiles(updatedItems);
+    }
+
+
     function InviteUser(e){
         e.preventDefault();
         client.post(
@@ -192,9 +241,20 @@ function SingleChatPage(props){
     }
     const CloseClicked=(e)=>{
         setMembersVisible(false)
+        
     }
     const MembersClicked=(e)=>{
         setMembersVisible(true)
+        
+    }
+
+    const CloseFilesClicked=(e)=>{
+        setFilesVisible(false)
+        
+    }
+    const FilesClicked=(e)=>{
+        setFilesVisible(true)
+        
     }
 
     return(
@@ -210,14 +270,15 @@ function SingleChatPage(props){
         const downbarStyle={
             maxHeight:'10vh',
             minHeight:'10vh',
-            backgroundColor:'#353c55'
+            backgroundColor:'#353c55',
+            display: "flex"
             }
         return(
             
         <div className='chatdiv'>
            
             <div className='chatAssist'>
-            
+
                 {membersVisible?( <div className="membersdiv">
                     <div className="membersdivtop">
                         <a href="#" onClick={CloseClicked}>Close</a>
@@ -229,7 +290,19 @@ function SingleChatPage(props){
                         ))}
                     </div>
                 </div>):(<></>)}
-              
+
+
+                {filesVisible?(<div className="filesdiv">
+                    <div className="filesdivtop">
+                        <a href="#" onClick={CloseFilesClicked}>Close</a>
+                        <p>Manage files</p>
+                    </div>
+                    <div className="filesinside">
+                    {files.map((item, index)=>(
+                    <ShowFile url={item} id={index}/>
+                        ))}
+                    </div>
+                </div>):(<></>)}       
             
             <div className='chatOpened'>
                 
@@ -261,15 +334,21 @@ function SingleChatPage(props){
                     
                 {messages.map(item => (
                     
-                    <ChatMessage text={item.text} author={item.author} date={item.date}/>
+                    <ChatMessage text={item.text} author={item.author} date={item.date} files={item.files}/>
                     
                 ))}     
                 
                 <div className='scroll-to' ref={messagesEndRef}></div>
                 </div>
                 <div className='chatDownbar' style={downbarStyle}>
-                <form onSubmit={e => sendMessage(e)} id="mes-form">                                                                                                                   
+                <form onSubmit={e => sendMessage(e)} id="mes-form" className="mes-form">  
+                    
+                        
+                                                                                                                                    
                     <div className='chatInputHolder'>
+                        <a href="#" style={{backgroundColor:'#81a2db', margin:"12px", padding:"16px"}} onClick={FilesClicked}>Files to add</a>
+
+                        <input  className="inputfilebut" type="file" id="myFile" name="filename" accept="image/png, image/jpeg" onChange={e => changePicture(e)}></input><br></br><br></br>
                         <textarea style={{resize:'none', fontSize:'14px'}} type="text" id="lname" name="lname" ref={message}/>
                         <button className='sendMessageButton'>Send</button>
                     </div>
@@ -280,13 +359,36 @@ function SingleChatPage(props){
         </div>
         )
     }
+    function ShowFile(props){
+        console.log(props.url)
+        return(
+        <div style={{display:"flex", flexDirection:"row", alignItems:"center"}}>
+            <p>{props.url.name}</p>
+            <a href="#" id={props.id} onClick={deleteFile} style={{backgroundColor:"rgb(133 13 13)"}}>Delete</a>
+        </div>
+        )}   
+
     function ChatMessage(props){
+        const [areFiles, setAreFiles] = useState(false)
+        useEffect(()=>{
+            if (props.files===[]){
+                setAreFiles(false)
+            }
+            else{
+                setAreFiles(true)
+            }
+        })
         if(props.author==usernameS)
         {
         return(
             <div className='message' style={{float:"right", backgroundColor:"#6582b7"}}>
                 <a target="_blank" href={"/profile/"+props.author}>{props.author}</a><p className="date-show">{props.date}</p>
                 <p>{props.text}</p>
+                {areFiles? (props.files.map(imageSrc => (
+                    <img src={"http://127.0.0.1:8000"+imageSrc} />
+                ))):(<></>)}
+               
+            
             </div>
             )
         }
@@ -295,6 +397,9 @@ function SingleChatPage(props){
             <div className='message' style={{float:"left"}}>
                 <a target="_blank" href={"/profile/"+props.author}>{props.author}</a><p className="date-show">{props.date}</p>
                 <p>{props.text}</p>
+                {areFiles? (props.files.map(imageSrc => (
+                    <img src={"http://127.0.0.1:8000"+imageSrc} />
+                ))):(<></>)}
             </div>
             )
         }
