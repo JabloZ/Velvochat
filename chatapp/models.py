@@ -29,7 +29,7 @@ def upload_location_groupchat_logo(instance, filename):
 
 class GroupChat(models.Model):
     now=datetime.datetime.now()
-
+    owner=models.ForeignKey(Profile, null=True, blank=True, on_delete=models.CASCADE)
     image=models.ImageField(upload_to=upload_location_groupchat_logo, null=True, blank=True)
     type=models.CharField(max_length=10, unique=False, blank=False)
     name=models.TextField(max_length=60, unique=False, blank=False)

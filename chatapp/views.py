@@ -21,13 +21,11 @@ class FriendRequest(APIView):
     authentication_classes = (SessionAuthentication,)
     
     def get(self, request, *args, **kwargs):  
-        print(kwargs['id'])
         if kwargs['id'] is not None:
             
             all_requests=FriendsRequest.objects.all()
             get_from_user=kwargs['id']
             get_from=Profile.objects.get(id=get_from_user)
-            print(get_from)
             try:
 
                 sent_by=FriendsRequest.objects.filter(who_send=get_from)
@@ -49,7 +47,6 @@ class DidYouRequest(APIView):
     permission_classes = (permissions.AllowAny,)
     authentication_classes = (SessionAuthentication,)
     def get(self, request, *args, **kwargs):
-        print(request.data)
         second_us=Account.objects.get(username=kwargs["username"])
         second_us_prof=Profile.objects.get(user=second_us)
         try:
@@ -74,22 +71,19 @@ class AddToFriends(APIView):
         sender_profile=Profile.objects.get(id=request.data['who_send'])
         
         data2={"who_send":sender_profile.id,"who_received":received_profile.id}
-        print(data2)
         clean_data=validate_request(data2)
         
         serializer=FriendsRequestSerializer(data=clean_data)
-        print(serializer.is_valid())
+
         if not serializer.is_valid():
             print(serializer.errors)
         if serializer.is_valid(raise_exception=True):
             
             r = FriendsRequest(who_send=sender_profile, who_received=received_profile)
             r.save()
-            print(r)
             if r:
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
-        
-        print(serializer.errors)
+
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
 class AllRequests(APIView):
@@ -114,6 +108,18 @@ class ResponseToFriendsRequest(APIView):
                 request_processed.who_send.friends.add(request.user.profile)
                 request_processed.delete()
                 
+                pk_list = [request.user.profile, request_processed.who_send]
+
+                node_query = GroupChat.objects.annotate(count=Count('members')).filter(count=len(pk_list))
+                for pk in pk_list:
+                    node_query = node_query.filter(members=pk)
+                if node_query:
+                    print('n')
+                else:
+                    g=GroupChat(type='private', name=request.user.username+", "+request_processed.who_send.user.username)
+                    g.save()
+                    g.members.add(*[request.user.profile, request_processed.who_send])
+                
                 
             else:
                 print('wtf ziomus nie zaakceptujemy tego od cb')
@@ -121,7 +127,6 @@ class ResponseToFriendsRequest(APIView):
         return Response({''}, status=status.HTTP_200_OK)
     
 class deleteFriendsRequest(APIView):
-    print('dotralo')
     def post(self, request, *args, **kwargs):
         request_processed=FriendsRequest.objects.get(id=kwargs["id"])
         if request.user.profile==request_processed.who_send:
@@ -141,7 +146,6 @@ class deleteFromFriends(APIView):
     
 class deleteProfilePicture(APIView):
     def post(self, request, *args, **kwargs):
-        print(request.data)
         request.user.profile.image.delete(save=True)
         return Response({''}, status=status.HTTP_200_OK)
     
@@ -149,23 +153,19 @@ class deleteProfilePicture(APIView):
 class ShowUserGroups(APIView):
     def get(self, request, *args, **kwargs):  
         all_groups=GroupChat.objects.filter(members=request.user.profile)
-        print(all_groups)
         n=[{"name":x.name, "id":x.id, "image":x.image.url if x.image else "", "type":x.type} for x in all_groups]
-        print(n)
         return Response({'groups':n}, status=status.HTTP_200_OK)
     
 class ShowChat(APIView):
     def get(self, request, *args, **kwargs):
         
-        print(request.data)
         choosen_group=GroupChat.objects.get(id=kwargs["id"])
         if request.user.profile in choosen_group.members.all():
-            print(choosen_group)
-            print(choosen_group.members.all())
-            all_members=[{"username":x.user.username, "image":x.image.url if x.image else "", "admin":'yes' if x.user.profile in choosen_group.admins.all() else 'no'} for x in choosen_group.members.all()]
-            return Response({"group":{"name":choosen_group.name, "image":choosen_group.image.url if choosen_group.image else "", "type":choosen_group.type, "members":all_members, "admin":"yes" if request.user.profile in choosen_group.admins.all() else "no"}}, status=status.HTTP_200_OK)
+            
+            all_members=[{"username":x.user.username, "image":x.image.url if x.image else "", "admin":'yes' if x.user.profile in choosen_group.admins.all() else 'no', "owner":"yes" if x.user.profile==choosen_group.owner else "no"} for x in choosen_group.members.all()]
+            return Response({"group":{"name":choosen_group.name, "image":choosen_group.image.url if choosen_group.image else "", "type":choosen_group.type, "members":all_members, "admin":"yes" if request.user.profile in choosen_group.admins.all() else "no", "owner":"yes" if request.user.profile==choosen_group.owner else "no", "is_member":"yes" if request.user.profile in choosen_group.members.all() else "no"}}, status=status.HTTP_200_OK)
         else:
-            print('nieautoryzowany')
+            
             return Response("",status=status.HTTP_401_UNAUTHORIZED)
         
 class ShowMessages(APIView):
@@ -180,7 +180,7 @@ class ShowMessages(APIView):
                 one_mes["author"]=x.author.user.username
                 one_mes["text"]=x.text
                 one_mes["date"]=datetime.datetime.strptime(str(x.date)[0:10], "%Y-%m-%d").strftime('%d/%m/%Y')
-                print('fasfasfasfas')
+                
                 files_container=[]
                 for file in x.files.all():
                     files_container.append(file.file.url)
@@ -190,17 +190,18 @@ class ShowMessages(APIView):
 
             return Response({"group_messages":messages_returned}, status=status.HTTP_200_OK)
         else:
-            print('nieautoryzowany')
+            
             return Response("",status=status.HTTP_401_UNAUTHORIZED)
 
 class SendMessage(APIView):
     def post(self, request, *args, **kwargs):
         group_id=kwargs["id"]
-        print(request.data, kwargs["id"],'fasasasasasasasasas')
+        
         try:
             groupWherePosted=GroupChat.objects.get(id=group_id)
             if request.user.profile in groupWherePosted.members.all():
-                
+                    
+                    
                     mes=Message(text=request.data["text"], author=request.user.profile, belongs_to=groupWherePosted)
                     mes.save()
                     files = request.data.getlist('files[]', [])
@@ -232,12 +233,12 @@ class PrivateChatExists(APIView):
             node_query = GroupChat.objects.annotate(count=Count('members')).filter(count=len(pk_list))
 
             for pk in pk_list:
-                print(pk)
+                
                 node_query = node_query.filter(members=pk)
             if node_query:
-                print('cos jest')
+                
                 gc=(list(node_query))[0]
-                print(gc.id)
+                
                 return Response({"isgroup":"yes", "groupid":gc.id},status=status.HTTP_200_OK)
             else:
                 return Response({"isgroup":"no"},status=status.HTTP_204_NO_CONTENT)
@@ -248,14 +249,12 @@ class CreatePrivateChat(APIView):
      def post(self, request, *args, **kwargs):
         try:
             other_user=Account.objects.get(username=kwargs["username"])
-            other_user_prof=Profile.objects.get(user=other_user)
-            
+            other_user_prof=Profile.objects.get(user=other_user)     
             pk_list = [request.user.profile, other_user_prof]
-
             node_query = GroupChat.objects.annotate(count=Count('members')).filter(count=len(pk_list))
 
             for pk in pk_list:
-                print(pk)
+                
                 node_query = node_query.filter(members=pk)
             if node_query:
                 return Response({},status=status.HTTP_409_CONFLICT)
@@ -264,6 +263,10 @@ class CreatePrivateChat(APIView):
                 g=GroupChat(name=f"{request.user.username}, {other_user_prof.user.username}", type="private")
                 g.save()
                 g.members.add(*pk_list)
+
+
+
+
                 return Response({},status=status.HTTP_201_CREATED)
         except:
             return Response({},status=status.HTTP_400_BAD_REQUEST)
@@ -275,7 +278,7 @@ class ShowUserFriends(APIView):
         all_friends=get_user_profile.friends.all()
 
         n=[{"name":x.user.username, "image":x.image.url if x.image else ""} for x in all_friends]
-        print(len(n),len(all_friends))
+        
         return Response({'friends':n, 'flistlength':len(all_friends)}, status=status.HTTP_200_OK)
 
 class CreateGroup(APIView):
@@ -287,10 +290,11 @@ class CreateGroup(APIView):
                 group_image=request.data["image"]
             else:
                 group_image=""
-            g=GroupChat(name=group_name, image=group_image, type="group")
+            g=GroupChat(name=group_name, image=group_image, type="group", owner=request.user.profile)
             g.save()
             g.members.add(request.user.profile)
             g.admins.add(request.user.profile)
+            
             return Response({"group":g.id},status=status.HTTP_201_CREATED)
         
 class LeaveGroup(APIView):
@@ -306,22 +310,16 @@ class LeaveGroup(APIView):
         
 class DeleteFromGroup(APIView):
     def post(self, request, *args, **kwargs):
-        print(request.data)
         group=GroupChat.objects.get(id=request.data["group"])
-        print(group)
         user=Account.objects.get(username=request.data["username"])
-        print(user)
         profile=Profile.objects.get(user=user)
-        print(profile)
 
-        if group.type!="private" and request.user.profile in group.admins.all() and profile not in group.admins.all():
-            print('none')
+        if group.type!="private" and (request.user.profile in group.admins.all() and profile not in group.admins.all()) or request.user.profile==group.owner:
             group.members.remove(profile)
             group.admins.remove(profile)
             return Response(status=status.HTTP_202_ACCEPTED)
     
 class EditGroup(APIView):
-    print('to nawet kurwa nie dociera xD')
     def get(self, request, *args, **kwargs):
 
         group=GroupChat.objects.get(id=kwargs['id'])
@@ -331,14 +329,11 @@ class EditGroup(APIView):
             return Response({"authorized":"no"}) 
         
     def post(self,request, *args, **kwargs):
-        print('gowno zajebane')
-        print(request.data,'fasgasgasonjigbnasovov9u')
         group=GroupChat.objects.get(id=kwargs["id"])
         if request.user.profile in group.admins.all():
             serializer=GroupChatEditSerializer(group)
             if "image" in request.data:
                 group.image.delete(save=True)
-                print(request.data["image"], 'grupa image')
                 group.image.save(request.data["image"].name, request.data["image"])
             if "name" in request.data:
                 group.name=str(request.data["name"])
@@ -363,15 +358,31 @@ class AddToGroup(APIView):
             Iuser=Account.objects.get(username=request.data["user"])
             Puser=Profile.objects.get(user=Iuser)
         except:
-            return Response({"info":"user not found"})
+            return Response({"info":"user not found", "send":"no"})
         if request.user.profile in group.admins.all():
             if Puser in group.members.all():
-                return Response({"info":"user already in group"}) 
+                return Response({"info":"user already in group", "send":"no"}) 
             elif Puser not in request.user.profile.friends.all():
-                return Response({"info":"user not in friends"}) 
+                return Response({"info":"user not in friends", "send":"no"}) 
             else:
                 group.members.add(Puser)
-                return Response({"info":"user succesfully added"},status=status.HTTP_202_ACCEPTED)
+                return Response({"info":"user succesfully added", "send":"yes"},status=status.HTTP_202_ACCEPTED)
         else:
-            return Response({"info":"something else went wrong."})
+            return Response({"info":"something else went wrong.", "send":"no"})
 
+class ChangeRole(APIView):
+    def post(self, request):
+        g=GroupChat.objects.get(id=request.data["group"])
+        if request.user.profile==g.owner:
+            changed_user_acc=Account.objects.get(username=request.data["user"])
+            changed_user=Profile.objects.get(user=changed_user_acc)
+            if changed_user in g.members.all():
+                if changed_user in g.admins.all():
+                    g.admins.remove(changed_user)
+                else:
+                    g.admins.add(changed_user)
+                return Response("Role changed succesfully")
+            else:
+                return Response("User not in group")
+        else:
+            return Response("",status=status.HTTP_401_UNAUTHORIZED)    

@@ -45,13 +45,24 @@ class ChatConsumer(WebsocketConsumer):
         #"members_type":"delete",
         #"user":e.target.dataset.username
         elif action_type=="members":
+            if text_data_json["action"]=="change":
+                async_to_sync(self.channel_layer.group_send)(
+                    self.room_group_id,
+                    {
+                        'type':'members_change',
+                        'user':text_data_json["user"],
+                        'action':text_data_json["action"],
+                        'group':self.room_group_id
+                    }
+                )
             if text_data_json["action"]=="delete":
                 async_to_sync(self.channel_layer.group_send)(
                     self.room_group_id,
                     {
                         'type':'members_change',
                         'user':text_data_json["user"],
-                        'action':text_data_json["action"]
+                        'action':text_data_json["action"],
+                        'group':self.room_group_id
                     }
                 )
             elif text_data_json["action"]=="add":
@@ -60,19 +71,23 @@ class ChatConsumer(WebsocketConsumer):
                     {
                         'type':'members_change',
                         'user':text_data_json["user"],
-                        'action':text_data_json["action"]
+                        'action':text_data_json["action"],
+                        'group':self.room_group_id
                     }
                 )
     def members_change(self, event):
         userE = event['user']
         type = event['type']
         action=event['action']
+        group=event["group"]
+
         acc=Account.objects.get(username=userE)
         prof=Profile.objects.get(user=acc)
+        g=GroupChat.objects.get(id=group[5:])
 
         self.send(text_data=json.dumps({
             'type':'members',
-            'user':{'username':userE,'image':prof.image.url if prof.image else "", 'isAdmin':"no"},
+            'user':{'username':userE,'image':prof.image.url if prof.image else "", 'isAdmin':"yes" if prof in g.admins.all() else "no", 'isOwner':"yes" if prof==g.owner else "no"},
             'action':action
         }))
 

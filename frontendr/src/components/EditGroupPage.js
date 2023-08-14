@@ -81,7 +81,7 @@ function EditGroupPage(props){
         <NavBar/>
           <div className="EditProfileContainer" style={{backgroundColor:"rgb(81 88 117)"}}>
             <form class="editprofileform" enctype="multipart/form-data" onSubmit={e => SubmitGroupEdit(e)}> 
-            <p style={{fontSize:"32px"}}>Your bio:</p>
+            <p style={{fontSize:"32px"}}>Group Name:</p>
               <label className="biochanger">        
                 <textarea type="text" cols="60" rows="5" maxlength="50" value={name} onChange={e => setName(e.target.value)} />          
                 {imageBefore ? (

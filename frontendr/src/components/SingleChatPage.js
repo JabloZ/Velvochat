@@ -18,7 +18,7 @@ const client = axios.create({
 function SingleChatPage(props){
     let {chat_id} = useParams();
 
-    const messagesEndRef = React.createRef();
+    const messagesEndRef = useRef(null);
     const chatSocketRef = useRef(null)
    
    
@@ -35,17 +35,26 @@ function SingleChatPage(props){
     const [membersVisible, setMembersVisible] = useState(false);
     const [filesVisible, setFilesVisible] = useState(false);
     const [userIsAdmin, setUserIsAdmin] = useState(false)
+    const [userIsOwner, setUserIsOwner] = useState(false)
+    const [userIsMember, setUserMember] = useState(false)
     const [fileId, setFileId] = useState(0)
     const [filesUrl, setFilesUrl] = useState([])
-    
-    
+
     useEffect(()=>{
+        messagesEndRef.current.scrollIntoView()
+    },[messages, membersVisible, files, members, filesVisible]);
+  
+    useEffect(()=>{
+        console.log('nawet tu mnie nie ma')
         catchGroupInfo();
+
         catchGroupMessages();
-        setUsernameS(props.loggedUser.username)
-        chatSocketRef.current = initializeWebSocket();
         
+        chatSocketRef.current = initializeWebSocket();
+        messagesEndRef.current.scrollIntoView()
     },[])
+    
+    
     function initializeWebSocket(){
         let url=`ws://${window.location.host}/ws/socket-server/chat/${chat_id}/`
         const chatSocket = new WebSocket(url)
@@ -65,19 +74,20 @@ function SingleChatPage(props){
                             ...prevMembers,
                             { username: data.user.username, image: data.user.image, isAdmin: data.user.isAdmin }
                           ]);
-
+                    
                     }
+                    else if (data.action=="change"){
+                        catchGroupInfo(); /* have to change this when i come back, because it updates whole page instead of one user */
+                        console.log('hihi?')
+                    }
+
                 }
             
         };
         return chatSocket;
     }
     
-    useEffect(()=>{
-        messagesEndRef.current.scrollIntoView()
-    },[messages, membersVisible, files, members, filesVisible]);
-  
-    
+   
 
     function sendMessage(e) {
         e.preventDefault();
@@ -150,11 +160,20 @@ function SingleChatPage(props){
         return fetch("/chatapp/chatinfo/"+chat_id).then(response =>
             response.json().then((data)=>{
                 updateName(data.group.name)
+                console.log('nizej jest blad')
+                if (data.group.is_member=="yes"){
+                    setUserMember(true)
+                }
+                else{
+                    setUserMember(false)
+                    
+                    navigate("/")
+                }
                 if (data.group.image != ''){
                     updateImage(data.group.image)
                 }
                 setMembers(data.group.members)
-                console.log(data.group.members)
+                
                 
                 if (data.group.admin=="yes"){
                     setUserIsAdmin(true)
@@ -162,9 +181,17 @@ function SingleChatPage(props){
                 else{
                     setUserIsAdmin(false)
                 }
+                if (data.group.owner=="yes"){
+                    setUserIsOwner(true)
+                }
+                else{
+                    setUserIsOwner(false)
+                }
                 
             })
-            )
+            ).catch((error) => {
+                navigate("/")
+    });
     };
 
     function catchGroupMessages(){
@@ -176,6 +203,24 @@ function SingleChatPage(props){
             )
             
     };
+    function changeUserRole(e){
+        e.preventDefault();
+        client.post(
+            "chatapp/changeuserrole",{
+                "user":e.target.dataset.username,
+                "group":chat_id
+            }
+        ).then(response=>{
+            chatSocketRef.current.send(JSON.stringify({
+                "action_type":"members",
+                "user":e.target.dataset.username,
+                "action":"change"
+    
+            }));
+            
+        })
+    }
+
     const UserKicked = e =>{
         e.preventDefault();
         client.post(
@@ -206,7 +251,7 @@ function SingleChatPage(props){
         updatedItems.splice(e.target.id, 1);
         setFiles(updatedItems);
     }
-
+    
 
     function InviteUser(e){
         e.preventDefault();
@@ -217,15 +262,19 @@ function SingleChatPage(props){
             }
         ).then(
             response =>{
-                alert(response.data.info)
-                console.log(response.data.info)
+                
+                if (response.data.send =="yes"){
+                    chatSocketRef.current.send(JSON.stringify({
+                        "action_type":"members",
+                        "user":invited.current.value,
+                        "action":"add"
+            
+                    }))
+                }
+                else{
+                    alert(response.data.info)
+                }
             },
-            chatSocketRef.current.send(JSON.stringify({
-                "action_type":"members",
-                "user":invited.current.value,
-                "action":"add"
-    
-            }))
             )
         invited=""
     }
@@ -286,7 +335,7 @@ function SingleChatPage(props){
                     </div>
                     <div className="membersinside">
                     {members.map(item=>(
-                    <MemberPannel username={item.username} image={item.image} isAdmin={item.admin}/>
+                    <MemberPannel username={item.username} image={item.image} isAdmin={item.admin} isOwner={item.owner}/>
                         ))}
                     </div>
                 </div>):(<></>)}
@@ -359,6 +408,7 @@ function SingleChatPage(props){
         </div>
         )
     }
+    
     function ShowFile(props){
         console.log(props.url)
         return(
@@ -405,6 +455,7 @@ function SingleChatPage(props){
         }
     }
     function MemberPannel(propsM){
+        const [isOwner, setIsOwner] = useState([])
         const [isAdmin, setIsAdmin] = useState([])
         const [isUser, setIsUser] = useState([])
         useEffect(()=>{
@@ -420,6 +471,13 @@ function SingleChatPage(props){
             else{
                 setIsAdmin(false)
             }
+            if (propsM.isOwner=="yes"){
+                setIsOwner(true)
+            }
+            else{
+                setIsOwner(false)
+            }
+            
         });
         return(
             
@@ -429,16 +487,25 @@ function SingleChatPage(props){
                 <a href={"/profile/"+propsM.username} target="_blank">{propsM.username}</a>
                 {   
                     isAdmin ? (
-                        <p style={{border: "1px dashed rgb(92, 212, 245)"}}>Admin</p>
+                        isOwner ?(<><p style={{border: "1px dashed rgb(92, 212, 245)"}}>Owner</p><p style={{border: "1px dashed rgb(92, 212, 245)"}}>Admin</p></>):
+                        ( userIsOwner?(<><p style={{border: "1px dashed rgb(92, 212, 245)"}}>Admin</p><a className="KickButton" href="#" onClick={UserKicked} data-username={propsM.username}>Kick user</a>
+                        <a className="KickButton" href="#" data-username={propsM.username} onClick={changeUserRole} style={{backgroundColor: "rgb(54 145 207)"}}>Change role</a></>):
+                        (<p style={{border: "1px dashed rgb(92, 212, 245)"}}>Admin</p>)
+                        )
+                        
                     ):(
                         isUser ? (
                             <p style={{border: "1px dashed rgb(220, 241, 247)"}}>Member</p>
                         ):(
-                            userIsAdmin ? ( <>
-                                <p style={{border: "1px dashed rgb(220, 241, 247)"}}>Member</p>
+                            userIsAdmin ? (   
+                                userIsOwner ? (<><p style={{border: "1px dashed rgb(220, 241, 247)"}}>Member</p>
                                 <a className="KickButton" href="#" onClick={UserKicked} data-username={propsM.username}>Kick user</a>
-                            </>):( <>
+                                <a className="KickButton" href="#" style={{backgroundColor: "rgb(54 145 207)"}} data-username={propsM.username} onClick={changeUserRole} >Change role</a></>):
+                                (<><p style={{border: "1px dashed rgb(220, 241, 247)"}}>Member</p>
+                                <a className="KickButton" href="#" onClick={UserKicked} data-username={propsM.username}>Kick user</a></>)
+                            ):( <>
                                 <p style={{border: "1px dashed rgb(220, 241, 247)"}}>Member</p>
+                                
                                 
                             </>)
 
