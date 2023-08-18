@@ -13,6 +13,9 @@ from chatapp.models import Profile
 from django.shortcuts import get_object_or_404, Http404
 from django.core.files.storage import FileSystemStorage
 
+import datetime
+import pytz
+
 class UserRegister(APIView):
 	
 	permission_classes = (permissions.AllowAny,)
@@ -81,8 +84,38 @@ class ProfileView(APIView):
 			if obj == None:
 				raise Http404
 		self.check_object_permissions(self.request, obj)
+		#new_friend_list=[{"image":(get_object_or_404(Profile, id=x)).image.url if (get_object_or_404(Profile, id=x)).image else "","username":(get_object_or_404(Profile, id=x)).user.username, "last_active":(get_object_or_404(Profile, id=x)).last_activity} for x in serializer.data["friends"]]
+		
+		new_friend_list=[]
+		for x in serializer.data["friends"]:
+			to_append={}
+			prof=Profile.objects.get(id=x)
+			to_append["image"]=prof.image.url if prof.image else ""
+			to_append["username"]=prof.user.username
+			
+			date_str1 = str(datetime.datetime.now(pytz.utc))
+			date_str2 = str(prof.last_activity)
+			print(prof.last_activity, 'last active', datetime.datetime.now(pytz.utc),'now')
+			date_format = "%Y-%m-%d %H:%M:%S.%f%z"
+			date1 = datetime.datetime.strptime(date_str1, date_format)
+			date2 = datetime.datetime.strptime(date_str2, date_format)
 
-		new_friend_list=[{"image":(get_object_or_404(Profile, id=x)).image.url if (get_object_or_404(Profile, id=x)).image else "","username":(get_object_or_404(Profile, id=x)).user.username, } for x in serializer.data["friends"]]
+			last_mes_date_diff=date1-date2
+			days = last_mes_date_diff.days
+			seconds = last_mes_date_diff.seconds
+			hours = seconds // 3600
+			minutes = (seconds // 60) % 60
+			last_ac=last_mes_date_diff.seconds + last_mes_date_diff.days*86400
+			if days!=0: 
+				last_ac=str(days)+" days ago"
+			elif days==0:
+				if hours!=0:
+					last_ac=str(hours)+" hours ago"
+				else:
+					last_ac=str(minutes)+" minutes ago"
+			to_append["last_activity"]=last_ac
+
+			new_friend_list.append(to_append)
 		serialized=serializer.data
 		serialized["friends"]=new_friend_list
 		

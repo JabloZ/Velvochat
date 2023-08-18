@@ -15,6 +15,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from .validations import validate_request
 import datetime
 from django.db.models import Count
+import pytz
 
 class FriendRequest(APIView):
     permission_classes = (permissions.AllowAny,)
@@ -153,8 +154,54 @@ class deleteProfilePicture(APIView):
 class ShowUserGroups(APIView):
     def get(self, request, *args, **kwargs):  
         all_groups=GroupChat.objects.filter(members=request.user.profile)
-        n=[{"name":x.name, "id":x.id, "image":x.image.url if x.image else "", "type":x.type} for x in all_groups]
-        return Response({'groups':n}, status=status.HTTP_200_OK)
+        #"name":x.name, "id":x.id, "image":x.image.url if x.image else "", "type":x.type,
+        n=[]
+        for x in all_groups:
+            to_add={}
+            to_add["name"]=x.name
+            to_add["id"]=x.id
+            to_add["image"]=x.image.url if x.image else ""
+            to_add["type"]=x.type
+            all_mes=Message.objects.filter(belongs_to=x)
+            
+            if all_mes.exists():
+                last_mes=(all_mes[::-1][0]).text
+                last_mes_author=str((all_mes[::-1][0]).author)+": "
+                last_mes_date=(all_mes[::-1][0]).date              
+                date_str1 = str(datetime.datetime.now(pytz.utc))
+                date_str2 = str(last_mes_date)
+                
+                date_format = "%Y-%m-%d %H:%M:%S.%f%z"
+                date1 = datetime.datetime.strptime(date_str1, date_format)
+                date2 = datetime.datetime.strptime(date_str2, date_format)
+
+                last_mes_date_diff=date1-date2
+                days = last_mes_date_diff.days
+                seconds = last_mes_date_diff.seconds
+                hours = seconds // 3600
+                minutes = (seconds // 60) % 60
+                last_mes_diff_int=last_mes_date_diff.seconds + last_mes_date_diff.days*86400
+                if days!=0: 
+                    last_mes_date_diff=str(days)+" days ago"
+                elif days==0:
+                    if hours!=0:
+                        last_mes_date_diff=str(hours)+" hours ago"
+                    else:
+                        last_mes_date_diff=str(minutes)+" minutes ago"
+            else:
+                last_mes=""
+                last_mes_author=""
+                last_mes_date_diff="never"
+                last_mes_diff_int=1000000000000
+            to_add["last_mes_diff_int"]=last_mes_diff_int
+            to_add["last_mes_date_diff"]=last_mes_date_diff
+            to_add["last_mes"]=last_mes
+            to_add["last_mes_author"]=last_mes_author
+            
+            n.append(to_add)
+
+        sorted_data = sorted(n, key=lambda x: x['last_mes_diff_int'])    
+        return Response({'groups':sorted_data}, status=status.HTTP_200_OK)
     
 class ShowChat(APIView):
     def get(self, request, *args, **kwargs):
@@ -179,7 +226,7 @@ class ShowMessages(APIView):
                 one_mes={}
                 one_mes["author"]=x.author.user.username
                 one_mes["text"]=x.text
-                one_mes["date"]=datetime.datetime.strptime(str(x.date)[0:10], "%Y-%m-%d").strftime('%d/%m/%Y')
+                one_mes["date"]=str(datetime.datetime.strptime(str(x.date)[11:19], "%H:%M:%S"))[11:19]+" "+str(datetime.datetime.strptime(str(x.date)[0:10], "%Y-%m-%d").strftime('%d/%m/%Y'))
                 
                 files_container=[]
                 for file in x.files.all():
@@ -263,6 +310,7 @@ class CreatePrivateChat(APIView):
                 g=GroupChat(name=f"{request.user.username}, {other_user_prof.user.username}", type="private")
                 g.save()
                 g.members.add(*pk_list)
+                g.admins.add(*pk_list)
 
 
 
@@ -285,7 +333,7 @@ class CreateGroup(APIView):
     def post(self, request, *args, **kwargs):
         group_name=request.data["name"]
         if group_name!="":
-            print(request.data)
+            
             if request.data["image"]:
                 group_image=request.data["image"]
             else:
@@ -330,7 +378,7 @@ class EditGroup(APIView):
         
     def post(self,request, *args, **kwargs):
         group=GroupChat.objects.get(id=kwargs["id"])
-        if request.user.profile in group.admins.all():
+        if request.user.profile in group.admins.all() or group.type=="private":
             serializer=GroupChatEditSerializer(group)
             if "image" in request.data:
                 group.image.delete(save=True)
@@ -359,7 +407,7 @@ class AddToGroup(APIView):
             Puser=Profile.objects.get(user=Iuser)
         except:
             return Response({"info":"user not found", "send":"no"})
-        if request.user.profile in group.admins.all():
+        if request.user.profile in group.admins.all() or group.type!="private":
             if Puser in group.members.all():
                 return Response({"info":"user already in group", "send":"no"}) 
             elif Puser not in request.user.profile.friends.all():

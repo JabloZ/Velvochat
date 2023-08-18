@@ -82,7 +82,7 @@ const client = axios.create({
           
         {props.UserFriends.map(item => (
           <div className='socCon'>
-            <SocialDisplay obj={item} key={item.username} social_name={item.username} social_picture={item.image} tohref={"/profile/"+item.username}/>
+            <SocialDisplay obj={item} key={item.username} social_name={item.username} social_picture={item.image} tohref={"/profile/"+item.username} last_ac={item.last_activity}/>
           </div>
         ))} 
           
@@ -93,7 +93,7 @@ const client = axios.create({
       <div className='friendscontainer' style={socialcontainer}>
         {props.UserGroups.map(item => (
           <div className='socCon'>
-            <SocialDisplay obj={item} key={item.name} social_name={item.name} social_picture={item.image} tohref={"/chat/"+item.id}/>
+            <SocialDisplay obj={item} key={item.name} social_name={item.name} social_picture={item.image} tohref={"/chat/"+item.id} last_mes={item.last_mes} last_mes_author={item.last_mes_author} last_ac={item.last_mes_date_diff}/>
           </div>
         ))} 
           
@@ -113,7 +113,10 @@ const client = axios.create({
     return(
       <div className="Socialdisplay">
         
-       <div className='square' ><a href={props.tohref}><div className="imageinsquare"><img src={'http://127.0.0.1:8000'+props.social_picture}></img></div></a></div><p><a href={props.tohref} style={{fontSize:'14px'}}>{props.social_name}</a><p1 style={onlinestyle}>35min ago</p1></p><p style={{textAlign:'left', fontSize:'12px'}}>X: Maybe</p>
+       <div className='square' ><a href={props.tohref}><div className="imageinsquare"><img src={'http://127.0.0.1:8000'+props.social_picture}></img></div></a></div>
+       <p><a href={props.tohref} style={{fontSize:'14px'}}>{props.social_name}</a><p1 style={onlinestyle}>{props.last_ac}</p1></p>
+       
+       <p style={{textAlign:'left', fontSize:'12px'}}>{props.last_mes_author}{props.last_mes}</p>
         
       </div>
     )

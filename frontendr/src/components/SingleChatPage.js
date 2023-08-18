@@ -49,7 +49,7 @@ function SingleChatPage(props){
         catchGroupInfo();
 
         catchGroupMessages();
-        
+        setUsernameS(props.loggedUser.username)
         chatSocketRef.current = initializeWebSocket();
         messagesEndRef.current.scrollIntoView()
     },[])
@@ -139,11 +139,14 @@ function SingleChatPage(props){
         const yyyy = today.getFullYear();
         let mm = today.getMonth() + 1; // Months start at 0!
         let dd = today.getDate();
+        let hh = today.getHours();
+        let mmm = today.getMinutes();
+        let ss=today.getSeconds();
 
         if (dd < 10) dd = '0' + dd;
         if (mm < 10) mm = '0' + mm;
 
-        const formattedToday = dd + '/' + mm + '/' + yyyy;
+        const formattedToday = hh+":"+mmm+":"+ss+" "+dd + '/' + mm + '/' + yyyy;
 
         chatSocketRef.current.send(JSON.stringify({
           "message": message.current.value,

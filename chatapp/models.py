@@ -12,6 +12,7 @@ class Profile(models.Model):
     bio=models.TextField(max_length=300, blank=True, null=True)
     friends=models.ManyToManyField("self", related_name='profile_friends', blank=True, symmetrical=False)
     image=models.ImageField(upload_to=upload_location_profile_image, null=True, blank=True)
+    last_activity=models.DateTimeField(auto_now_add=True, null=True)
 
     def __str__(self):
         return str(self.user.username)
