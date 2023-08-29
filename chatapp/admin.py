@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import GroupChat, Message, Profile, FriendsRequest, File
+from .models import GroupChat, Message, Profile, FriendsRequest, File, Notification
 # Register your models here.
 admin.site.register(GroupChat)
 admin.site.register(Message)
@@ -11,3 +11,4 @@ class ProfileAdmin(admin.ModelAdmin):
     list_display = ('user', 'image', 'bio', 'last_activity')  # Dodaj tu nowe pole
 
 admin.site.register(Profile, ProfileAdmin)
+admin.site.register(Notification)

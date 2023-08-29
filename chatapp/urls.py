@@ -24,5 +24,6 @@ urlpatterns=[
     path('editgroup/<id>', views.EditGroup.as_view(), name='editgroup'),
     path('deletegrouppicture/<id>', views.DeleteGroupPicture.as_view(), name='deletegrouppicture'),
     path('addtogroup/<id>', views.AddToGroup.as_view(),name='addtogroup'),
-    path('changeuserrole', views.ChangeRole.as_view(), name='changeuserrole')
+    path('changeuserrole', views.ChangeRole.as_view(), name='changeuserrole'),
+    path('allusernotifications', views.UserNotifications.as_view(), name='allusernotifications'),
 ]

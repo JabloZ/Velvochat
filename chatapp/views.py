@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework import permissions, status
 from django.core import serializers
 from django.contrib.auth.decorators import login_required
-from .models import FriendsRequest, GroupChat, Message, File
+from .models import FriendsRequest, GroupChat, Message, File, Notification
 from chatapp.models import Profile, Account
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.shortcuts import get_object_or_404, Http404
@@ -227,7 +227,7 @@ class ShowMessages(APIView):
                 one_mes["author"]=x.author.user.username
                 one_mes["text"]=x.text
                 one_mes["date"]=str(datetime.datetime.strptime(str(x.date)[11:19], "%H:%M:%S"))[11:19]+" "+str(datetime.datetime.strptime(str(x.date)[0:10], "%Y-%m-%d").strftime('%d/%m/%Y'))
-                
+                one_mes["type"]=x.type
                 files_container=[]
                 for file in x.files.all():
                     files_container.append(file.file.url)
@@ -248,9 +248,14 @@ class SendMessage(APIView):
             groupWherePosted=GroupChat.objects.get(id=group_id)
             if request.user.profile in groupWherePosted.members.all():
                     
-                    
-                    mes=Message(text=request.data["text"], author=request.user.profile, belongs_to=groupWherePosted)
-                    mes.save()
+                    if request.data["author"]=="system":
+                        acc_pr=Account.objects.get(username="system")
+                        pr=Profile.objects.get(user=acc_pr)
+                        mes=Message(text=request.data["text"], author=pr, belongs_to=groupWherePosted, type='system')
+                        mes.save()
+                    else:
+                        mes=Message(text=request.data["text"], author=request.user.profile, belongs_to=groupWherePosted)
+                        mes.save()
                     files = request.data.getlist('files[]', [])
                     all_fil=[]
                     files_url=[]
@@ -325,7 +330,7 @@ class ShowUserFriends(APIView):
         get_user_profile=Profile.objects.get(user=get_user_account)
         all_friends=get_user_profile.friends.all()
 
-        n=[{"name":x.user.username, "image":x.image.url if x.image else ""} for x in all_friends]
+        n=[{"username":x.user.username, "image":x.image.url if x.image else "", "last_activity":str(x.last_activity)[0:10]+" "+str(x.last_activity)[11:19]} for x in all_friends]
         
         return Response({'friends':n, 'flistlength':len(all_friends)}, status=status.HTTP_200_OK)
 
@@ -434,3 +439,9 @@ class ChangeRole(APIView):
                 return Response("User not in group")
         else:
             return Response("",status=status.HTTP_401_UNAUTHORIZED)    
+        
+class UserNotifications(APIView):
+    def get(self,request):
+        all_not=Notification.objects.filter(belongs_to=request.user.profile)
+        print(all_not,'all_not')
+        return Response({"all_notifications":[{"text":x.text, "date":str(x.date)[0:10]+" "+str(x.date)[11:19]} for x in all_not]})

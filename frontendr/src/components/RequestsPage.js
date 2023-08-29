@@ -24,7 +24,7 @@ function RequestPage(){
     return(
         
         <div className="CentralDiv">
-            <NavBar/>
+            
                 <div className="RequestsContainer" style={{backgroundColor:"rgb(81 88 117)"}}>
                     {RequestsList.map(item => (
                         <RequestBox obj={item} key={item.reqId} social_name={item.username} image={item.image} date={item.date} rid={item.reqId}/> 

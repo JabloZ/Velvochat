@@ -31,7 +31,10 @@ class ChatConsumer(WebsocketConsumer):
             date=text_data_json["date"]
             author=text_data_json["author"]
             files=text_data_json["files"]
-            print(files)
+            print('aavava')
+            etype=text_data_json["type"]
+            print(etype,'this is ttpe')
+            
             async_to_sync(self.channel_layer.group_send)(
                 self.room_group_id,
                 {
@@ -39,7 +42,8 @@ class ChatConsumer(WebsocketConsumer):
                     'message':message,
                     "author":author,
                     "date":date,
-                    "files":files
+                    "files":files,
+                    "mestype":etype
                 }
             )
         #"members_type":"delete",
@@ -99,14 +103,28 @@ class ChatConsumer(WebsocketConsumer):
         date=event["date"]
         author=event["author"]
         files = event['files']
+        etype=event["mestype"]
         print(files)
-        self.send(text_data=json.dumps({
-            'type':'chat',
-            'message':message,
-            'author':author,
-            'date':date,
-            "files":files
-        }))
+        
+        if etype=="system":
+            self.send(text_data=json.dumps({
+                'type':'chat',
+                'message':message,
+                'author':"system",
+                'date':date,
+                "files":files,
+                "mestype":etype
+            }))
+        else:
+            self.send(text_data=json.dumps({
+                'type':'chat',
+                'message':message,
+                'author':author,
+                'date':date,
+                "files":files,
+                "mestype":etype
+            }))
+
 
     def disconnect(self, close_code):
         

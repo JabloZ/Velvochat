@@ -17,7 +17,8 @@ const client = axios.create({
 
 function SingleChatPage(props){
     let {chat_id} = useParams();
-
+    const { loggedUser, loggedUserProfile } = props;
+    console.log(loggedUser, loggedUserProfile)
     const messagesEndRef = useRef(null);
     const chatSocketRef = useRef(null)
    
@@ -61,7 +62,14 @@ function SingleChatPage(props){
         chatSocket.onmessage = function(e){
             let data = JSON.parse(e.data)
                 if (data.type=="chat"){
-                    updateMessages(current => [...current, {author: data.author, text: data.message, date: data.date, files:data.files}])
+                    if (data.mestype=="system"){
+                        console.log(data.mestype)
+                        updateMessages(current => [...current, {author: data.author, text: data.message, date: data.date, files:data.files, type:data.mestype}])
+                    }
+                    else{
+                        console.log(data.mestype)
+                        updateMessages(current => [...current, {author: data.author, text: data.message, date: data.date, files:data.files, type:data.mestype}])
+                    }
                 }
                 else if(data.type=="members"){
                     if (data.action=="delete"){
@@ -110,6 +118,7 @@ function SingleChatPage(props){
                 "author":props.loggedUser.username,
                 "date":formattedToday,
                 "files":files
+                
             },{
                 headers: {
                   'content-type': 'multipart/form-data'
@@ -133,8 +142,8 @@ function SingleChatPage(props){
           });
 
       };
-      function sendChatMessage(files_url) {
-        
+
+      function getDate(){
         const today = new Date();
         const yyyy = today.getFullYear();
         let mm = today.getMonth() + 1; // Months start at 0!
@@ -142,18 +151,29 @@ function SingleChatPage(props){
         let hh = today.getHours();
         let mmm = today.getMinutes();
         let ss=today.getSeconds();
-
+        if (ss<10){
+            ss='0'+ss
+        }
+        if (mmm<10){
+            mmm='0'+mmm
+        }
         if (dd < 10) dd = '0' + dd;
         if (mm < 10) mm = '0' + mm;
-
         const formattedToday = hh+":"+mmm+":"+ss+" "+dd + '/' + mm + '/' + yyyy;
+        return formattedToday
+      }
+
+
+      function sendChatMessage(files_url) {
+        let actual_date=getDate();
 
         chatSocketRef.current.send(JSON.stringify({
           "message": message.current.value,
           "author": props.loggedUser.username,
-          "date": formattedToday,
+          "date": actual_date,
           "action_type": "message",
-          "files": files_url
+          "files": files_url,
+          "type":""
         }));
         message.current.value=null
         setFiles([])
@@ -225,6 +245,7 @@ function SingleChatPage(props){
     }
 
     const UserKicked = e =>{
+        let actual_date=getDate();
         e.preventDefault();
         client.post(
             "chatapp/deletefromgroup",
@@ -241,7 +262,28 @@ function SingleChatPage(props){
             }));
             
         })
-
+       
+        client.post(
+            "/chatapp/sendmessage/"+chat_id,
+            {
+                "text":e.target.dataset.username+" got deleted from the group.",
+                "author":"system",
+            },{
+                headers: {
+                  'content-type': 'multipart/form-data'
+                }
+            }
+        ).then(chatSocketRef.current.send(JSON.stringify({
+            "message": e.target.dataset.username+" got deleted from the group.",
+            "author": "system",
+            "date": actual_date,
+            "action_type": "message",
+            "files": [],
+            "type":"system"
+          })));
+          message.current.value=null
+          setFiles([])
+        
         
     }
     const changePicture = (e) => {
@@ -257,6 +299,7 @@ function SingleChatPage(props){
     
 
     function InviteUser(e){
+        let actual_date=getDate();
         e.preventDefault();
         client.post(
             "chatapp/addtogroup/"+chat_id,
@@ -273,8 +316,28 @@ function SingleChatPage(props){
                         "action":"add"
             
                     }))
+                    console.log('tu jes')
+                    client.post(
+                        "/chatapp/sendmessage/"+chat_id,
+                        {
+                            "text":invited.current.value+" got invited to the group.",
+                            "author":"system",
+                        },{
+                            headers: {
+                              'content-type': 'multipart/form-data'
+                            }
+                        }
+                    ).then(chatSocketRef.current.send(JSON.stringify({
+                        "message": invited.current.value+" got invited to the group.",
+                        "author": "system",
+                        "date": actual_date,
+                        "action_type": "message",
+                        "files": [],
+                        "type":"system"
+                      })));
                 }
                 else{
+                    
                     alert(response.data.info)
                 }
             },
@@ -282,12 +345,35 @@ function SingleChatPage(props){
         invited=""
     }
     function UserLeavesGroup(){
+        let actual_date=getDate();
+        client.post(
+            "/chatapp/sendmessage/"+chat_id,
+            {
+                "text":props.loggedUser.username+" left the group.",
+                "author":"system",
+            },{
+                headers: {
+                  'content-type': 'multipart/form-data'
+                }
+            }
+        ).then(chatSocketRef.current.send(JSON.stringify({
+            "message": props.loggedUser.username+" left the group.",
+            "author": "system",
+            "date": actual_date,
+            "action_type": "message",
+            "files": [],
+            "type":"system"
+          })));
+          message.current.value=null
+          setFiles([])
+        
         client.post(
             "chatapp/leavegroup/"+chat_id,
             {
             
             }
         ).then(
+            
             navigate("/allchats")
         )
     }
@@ -311,7 +397,7 @@ function SingleChatPage(props){
 
     return(
         <div className="central-div">
-            <NavBar/>    
+              
             <ChatDisplay name={name} image={image}/>
         </div>
         );
@@ -386,7 +472,7 @@ function SingleChatPage(props){
                     
                 {messages.map(item => (
                     
-                    <ChatMessage text={item.text} author={item.author} date={item.date} files={item.files}/>
+                    <ChatMessage text={item.text} author={item.author} date={item.date} files={item.files} type={item.type}/>
                     
                 ))}     
                 
@@ -431,7 +517,15 @@ function SingleChatPage(props){
                 setAreFiles(true)
             }
         })
-        if(props.author==usernameS)
+        if (props.type=="system"){
+            return(
+            <div className='message' style={{backgroundColor:"#252525", display:"flex", alignItems:"center"}}>
+            <p>{props.author}</p><p className="date-show">{props.date}</p>
+            <p>{props.text}</p>
+            </div>
+            )
+        }
+        else if(props.author==usernameS)
         {
         return(
             <div className='message' style={{float:"right", backgroundColor:"#6582b7"}}>

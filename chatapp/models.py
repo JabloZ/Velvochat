@@ -3,6 +3,8 @@ import datetime
 from accounts.models import Account
 from django.db.models.signals import post_save
 from .validations import validate_file_extension
+
+
 def upload_location_profile_image(instance, filename):
     file_path='images/users/{user}/profile-picture/{filename}'.format(user=str(instance.id), filename=filename)
     return str(file_path)
@@ -69,7 +71,14 @@ class Message(models.Model):
     date=models.DateTimeField(auto_now_add=True, blank=True)
     belongs_to=models.ForeignKey(GroupChat, null=True, on_delete=models.CASCADE)
     files=models.ManyToManyField(File, null=True, blank=True, related_name='messages')
+    type=models.TextField(max_length=50, null=True, blank=True)
 
     def __str__(self):
         return str(str(self.id) + ' ' + self.text+' '+str(self.belongs_to))
 
+
+class Notification(models.Model):
+    date=models.DateTimeField(auto_now_add=True, blank=True)
+    type=models.TextField(max_length=50, null=True, blank=True)
+    text=models.TextField(max_length=500, blank=False, null=True)
+    belongs_to=models.ForeignKey(Profile, null=True, on_delete=models.CASCADE)

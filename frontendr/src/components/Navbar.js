@@ -3,7 +3,7 @@ import './NavBar.css';
 import Dropdown from 'react-bootstrap/Dropdown';
 
 import axios from 'axios';
-import {Route, useNavigate } from "react-router-dom";
+import {Route, useNavigate, useLocation } from "react-router-dom";
 
 
 axios.defaults.xsrfCookieName = 'csrftoken';
@@ -15,11 +15,27 @@ const client = axios.create({
 });
 
 function NavBar(props) { 
-    
+    const location = useLocation();
+
+  // Lista tras, na których nie chcemy wyświetlać nawigacji
+    const routesWithoutNavBar = ["/login", "/register"];
+
+  // Sprawdzanie, czy bieżąca ścieżka jest na liście tras bez nawigacji
+    const shouldDisplayNavBar = !routesWithoutNavBar.includes(location.pathname);
+
+    if (!shouldDisplayNavBar) {
+      console.log('JAAA')
+      return null; // Jeśli nie chcemy wyświetlać nawigacji, zwracamy null
+    }
+
+
     const [username, setUsername]=useState('')
+    const [notifications, updateNotifications]=useState([]);
 
     useEffect(()=>{
-      CheckLoggedIn();
+      
+      setUsername(props.loggedUser.username)
+      getNotifications();
       },[]
     )
     const navigate = useNavigate();
@@ -49,23 +65,14 @@ function NavBar(props) {
     });
     
     }
-
-    function CheckLoggedIn(){
-      
-      return fetch("/accounts/user").then(response =>
-        response.json().then((data) => {
-         
-          if (data.user==undefined){
-            navigate("/login")
-          }
-          const DB=data.user
-          console.log(DB)
-          setUsername(DB.username)
-          return DB;
-          
-        }
-      ));
+    function getNotifications(){
+      return fetch("/chatapp/allusernotifications").then(response=>response.json().then(data=>{
+          console.log(data.all_notifications)
+          updateNotifications(data.all_notifications)
+      }))
     }
+
+    
 
 
 
@@ -80,7 +87,20 @@ function NavBar(props) {
       </div>
       <div className='navbar-inner'>
         <a href={"/profile/"+username+'/'} style={leftstyle} >👤<p style={minimalFont}>{username}</p></a>
-        <a href="#" style={leftstyle} >🔔<p style={minimalFont}>Notifications</p></a>
+        
+        <Dropdown>
+        <Dropdown.Toggle variant="success" id="dropdown-basic" className="dropdown-button-style">
+        🔔<p style={minimalFont}></p>
+        </Dropdown.Toggle>
+
+        <Dropdown.Menu className="Dropdown-items-holder">
+          {notifications.map(item=>(
+            <div className="Noti"><p>{item.text}</p></div>
+          ))}
+        </Dropdown.Menu>
+      </Dropdown>
+
+
         <a href="/allchats" style={leftstyle} >💬<p style={minimalFont}>Chats</p></a>
         
         <Dropdown>

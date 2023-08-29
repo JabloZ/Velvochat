@@ -35,6 +35,10 @@
     border: none;
     border-radius: 0;
     --bs-btn-active-bg: rgb(49, 60, 70);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-content: center;
 
   }
   
@@ -53,6 +57,15 @@
     padding-bottom: 0;
     border: none;
     transform: translate(0px, 100px)!important;
+    border-radius: 0;
+    color:white;
+    min-width: 25vw;
+  }
+  .Dropdown-items-holder p{
+    padding-top: 12px;
+    padding-bottom: 12px;
+    margin: 6px;
+    word-break: break-word;
   }
   .Dropdown-items-holder:hover{
     transition: 0.7s;
@@ -95,4 +108,15 @@
     margin: 8px 0;
     border:1px solid black;
     transition: width 0.4s ease-in-out;
+}
+.Noti{
+  display: flex;
+  align-content: center;
+  align-items: center;
+  padding:12px;
+}
+.Noti button{
+  border: none;
+  background-color: rgb(136, 27, 27);
+  margin:6px
 }

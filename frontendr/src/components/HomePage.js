@@ -36,7 +36,7 @@ const client = axios.create({
     return (
       
       <div className="App">
-        <NavBar LoggedUserUsername={username}></NavBar>
+        
         <SideBar UserFriends={friends} UserGroups={groups}></SideBar>
         <ChatDisplay></ChatDisplay>
         
@@ -68,7 +68,7 @@ const client = axios.create({
     
 
     if (props.UserFriends!=undefined){
-      console.log(props.UserFriends,'fas')
+      
     return(
     
     <nav className="sidebar">

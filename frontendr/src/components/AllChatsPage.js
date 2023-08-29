@@ -21,12 +21,13 @@ function ChatsPage(){
 
     useEffect(() => {
         GetAllGroups();
+        console.log('only once?')
     }, []);
 
     function GetAllGroups(){
         return fetch("/chatapp/allusergroups").then(response => 
             response.json().then((data) => {
-                console.log(data.groups)
+                
                 setGroups(data.groups)
             }))
     }
@@ -34,13 +35,13 @@ function ChatsPage(){
         
         <div className="CentralDiv">
             
-            <NavBar/>
+            
                 
                 <div className="RequestsContainer" style={{backgroundColor:"rgb(81 88 117)"}}>
                     <a className="createbutton" href="/creategroup">Create group</a>
                     <br></br>
                     {groups.map(item => (
-                        <GroupBox obj={item} name={item.name} image={item.image} id={item.id}/> 
+                        <GroupBox obj={item} name={item.name} image={item.image} id={item.id} last_mes={item.last_mes} last_mes_author={item.last_mes_author} last_ac={item.last_mes_date_diff}/> 
                     ))} 
                     
                 </div>
@@ -57,8 +58,10 @@ function GroupBox(props){
       }
       return(
         <div className="Socialdisplay">
-         <div className='square' ><a href={"/chat/"+props.id}><div className="imageinsquare"><img src={'http://127.0.0.1:8000'+props.image}></img></div></a></div><p><a href={"/chat/"+props.id}>{props.name}</a><p1 style={onlinestyle}>35min ago</p1></p><p style={{textAlign:'left', fontSize:'12px'}}>X: Maybe</p>
-          
+            <div className='square' ><a href={"/chat/"+props.id}><div className="imageinsquare"><img src={'http://127.0.0.1:8000'+props.image}></img></div></a></div>
+            <p><a href={"/chat/"+props.id} style={{fontSize:'14px'}}>{props.name}</a><p1 style={onlinestyle}>{props.last_ac}</p1></p>
+            <p style={{textAlign:'left', fontSize:'12px', color:"#FFFFFF"}}>{props.last_mes_author}{props.last_mes}</p>
+
         </div>
       )
 }

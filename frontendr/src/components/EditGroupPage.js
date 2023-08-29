@@ -78,7 +78,7 @@ function EditGroupPage(props){
     return(
         
       <div className="CentralDiv">
-        <NavBar/>
+        
           <div className="EditProfileContainer" style={{backgroundColor:"rgb(81 88 117)"}}>
             <form class="editprofileform" enctype="multipart/form-data" onSubmit={e => SubmitGroupEdit(e)}> 
             <p style={{fontSize:"32px"}}>Group Name:</p>

@@ -56,15 +56,17 @@ class UserLogout(APIView):
 		return Response(status=status.HTTP_200_OK)
 
 class UserView(APIView):
-	
-	permission_classes = (permissions.IsAuthenticated,)
-	
-	authentication_classes = (SessionAuthentication,)
+	print('tu mog')
 	##
+	
 	def get(self, request):
-		serializer = UserSerializer(request.user)
-		
-		return Response({'user': serializer.data}, status=status.HTTP_200_OK)
+		try:
+			serializer = UserSerializer(request.user)
+			return Response({'user': serializer.data}, status=status.HTTP_200_OK)
+		except:
+			print('tu error bo nei log')
+			return Response("", status=status.HTTP_401_UNAUTHORIZED)
+	
 	
 
 class ProfileView(APIView):
@@ -113,6 +115,7 @@ class ProfileView(APIView):
 					last_ac=str(hours)+" hours ago"
 				else:
 					last_ac=str(minutes)+" minutes ago"
+			print(last_ac)
 			to_append["last_activity"]=last_ac
 
 			new_friend_list.append(to_append)

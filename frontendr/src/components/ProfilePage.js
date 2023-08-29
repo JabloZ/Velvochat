@@ -188,7 +188,7 @@ function ProfilePage(props) {
     return(
        
         <div className="CentralDiv">
-            <NavBar/>
+            
 
             <div className="ProfileOverlay">
                 <div className="profile-top">
@@ -255,7 +255,7 @@ function ProfilePage(props) {
         return(
             
         <div className="CentralDiv">
-        <NavBar/>
+        
             <h4>This user doesnt exist!</h4>
         </div>
         )

@@ -26,6 +26,7 @@ function AllFriendsPage(){
         response.json().then((data) => {
             const RL=data.friends           
             setFriends(RL)
+            console.log(friends)
             console.log('wyjebalem sie tu')
             setFlistlength(data.flistlength)
         }, (error) => {
@@ -40,12 +41,12 @@ function AllFriendsPage(){
     return(
         
         <div className="CentralDiv">
-            <NavBar/>
+            
                 <div className="FriendsContainer" style={{backgroundColor:"rgb(81 88 117)"}}>
                 <p style={{fontSize: "28px",color: "white", textAlign: "center"}}>Friends: {flistlength}</p>
                         {friends.map(item => (
                             <div className='socCon'>
-                                <SocialDisplay obj={item} key={item.name} social_name={item.name} social_picture={item.image}/>
+                                <SocialDisplay obj={item} key={item.username} social_name={item.username} social_picture={item.image} tohref={"/profile/"+item.username} last_ac={item.last_activity}/>
                             </div>
                         ))} 
                     
@@ -62,10 +63,13 @@ function AllFriendsPage(){
           padding:'6px'
         }
         return(
-          <div className="SocialdisplayAF">
-           <div className='square' ><a href={"/profile/"+props.social_name}><div className="imageinsquare"><img src={'http://127.0.0.1:8000'+props.social_picture}></img></div></a></div><p><a href={"/profile/"+props.social_name} style={{fontSize:'28px'}}>{props.social_name}</a></p>
+            <div className="SocialdisplayAF">
+        
+            <div className='square' ><a href={props.tohref}><div className="imageinsquare"><img src={'http://127.0.0.1:8000'+props.social_picture}></img></div></a></div>
+            <p><a href={props.tohref} style={{fontSize:'14px'}}>{props.social_name}</a><p1 style={onlinestyle}>{props.last_ac}</p1></p>
             
-          </div>
+           </div>
+           
         )
       }                        
    

@@ -1,8 +1,8 @@
 
-import React, {Component, useState, useEffect} from "react";
+import React, {useState} from "react";
 import './CreateGroupPage.css'
 import axios from 'axios';
-import {Route, useNavigate } from "react-router-dom";
+import {useNavigate } from "react-router-dom";
 import NavBar from './Navbar.js'
 
 axios.defaults.xsrfCookieName = 'csrftoken';
@@ -15,7 +15,6 @@ const client = axios.create({
 
 function CreateGroupPage(props){
     const [name, setName]=useState('')
-    const [pimage, setPimage]=useState([])
     const [imageChanged, setImageChanged]=useState('')
     const navigate = useNavigate();
     const SubmitGroupCreation = (e) => {
@@ -44,7 +43,7 @@ function CreateGroupPage(props){
     return(
         
       <div className="CentralDiv">
-        <NavBar/>
+        
           <div className="EditProfileContainer" style={{backgroundColor:"rgb(81 88 117)"}}>
             <form class="editprofileform" enctype="multipart/form-data" onSubmit={e => SubmitGroupCreation(e)}> 
             <p style={{fontSize:"32px"}}>Your bio:</p>
