@@ -227,6 +227,7 @@ function SingleChatPage(props){
             
     };
     function changeUserRole(e){
+        let actual_date=getDate();
         e.preventDefault();
         client.post(
             "chatapp/changeuserrole",{
@@ -242,6 +243,27 @@ function SingleChatPage(props){
             }));
             
         })
+        client.post(
+            "/chatapp/sendmessage/"+chat_id,
+            {
+                "text":e.target.dataset.username+" role has changed",
+                "author":"system",
+            },{
+                headers: {
+                  'content-type': 'multipart/form-data'
+                }
+            }
+        ).then(chatSocketRef.current.send(JSON.stringify({
+            "message": e.target.dataset.username+" role has changed",
+            "author": "system",
+            "date": actual_date,
+            "action_type": "message",
+            "files": [],
+            "type":"system"
+          })));
+          message.current.value=null
+          setFiles([])
+        
     }
 
     const UserKicked = e =>{

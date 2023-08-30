@@ -1,5 +1,5 @@
-
-
+from django.shortcuts import redirect
+from django.http import HttpResponseRedirect
 from django.contrib.auth import get_user_model, login, logout
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.views import APIView
@@ -35,17 +35,21 @@ class UserRegister(APIView):
 class UserLogin(APIView):
 	permission_classes = (permissions.AllowAny,)
 	authentication_classes = (SessionAuthentication,)
+
 	##
 	def post(self, request):
-		data = request.data
-		assert validate_email(data)
-		assert validate_password(data)
-		serializer = UserLoginSerializer(data=data)
-		if serializer.is_valid(raise_exception=True):
-			
-			user = serializer.check_user(data)
-			login(request, user)
-			return Response(serializer.data, status=status.HTTP_200_OK)
+		if request.user.is_authenticated:
+			data = request.data
+			assert validate_email(data)
+			assert validate_password(data)
+			serializer = UserLoginSerializer(data=data)
+			if serializer.is_valid(raise_exception=True):
+				
+				user = serializer.check_user(data)
+				login(request, user)
+				return Response(serializer.data, status=status.HTTP_200_OK)	
+		else:
+			redirect("/")
 
 class UserLogout(APIView):
 	permission_classes = (permissions.AllowAny,)
@@ -60,21 +64,47 @@ class UserView(APIView):
 	##
 	
 	def get(self, request):
-		try:
-			serializer = UserSerializer(request.user)
-			return Response({'user': serializer.data}, status=status.HTTP_200_OK)
-		except:
-			print('tu error bo nei log')
-			return Response("", status=status.HTTP_401_UNAUTHORIZED)
+		if request.user.is_authenticated:	
+			try:
+				serializer = UserSerializer(request.user)
+				return Response({'user': serializer.data, "logged":"yes"}, status=status.HTTP_200_OK)
+			except:
+				print('tu error bo nei log')
+				return Response({"logged":"no"}, status=status.HTTP_401_UNAUTHORIZED)
+		else:
+			return redirect("login")
 	
 	
 
 class ProfileView(APIView):
-
+	
+		
 	permission_classes = (permissions.IsAuthenticated,)
 	authentication_classes = (SessionAuthentication,)
 
-	def get(self, *args, **kwargs):
+	def get(self, request, *args, **kwargs):
+		def format_date(date_str1, date_str2):
+			date_format = "%Y-%m-%d %H:%M:%S.%f%z"
+			date1 = datetime.datetime.strptime(date_str1, date_format)
+			date2 = datetime.datetime.strptime(date_str2, date_format)
+
+			last_mes_date_diff=date1-date2
+			days = last_mes_date_diff.days
+			seconds = last_mes_date_diff.seconds
+			hours = seconds // 3600
+			minutes = (seconds // 60) % 60
+			last_ac=last_mes_date_diff.seconds + last_mes_date_diff.days*86400
+			if days!=0: 
+				last_ac=str(days)+" days ago"
+			elif days==0:
+				if hours!=0:
+					last_ac=str(hours)+" hours ago"
+				else:
+					last_ac=str(minutes)+" minutes ago"
+			return last_ac
+		
+
+
 		serializer=ProfileSerializer
 		username = self.kwargs.get("username")
 		if username is not None:
@@ -94,33 +124,18 @@ class ProfileView(APIView):
 			prof=Profile.objects.get(id=x)
 			to_append["image"]=prof.image.url if prof.image else ""
 			to_append["username"]=prof.user.username
-			
 			date_str1 = str(datetime.datetime.now(pytz.utc))
 			date_str2 = str(prof.last_activity)
-			print(prof.last_activity, 'last active', datetime.datetime.now(pytz.utc),'now')
-			date_format = "%Y-%m-%d %H:%M:%S.%f%z"
-			date1 = datetime.datetime.strptime(date_str1, date_format)
-			date2 = datetime.datetime.strptime(date_str2, date_format)
 
-			last_mes_date_diff=date1-date2
-			days = last_mes_date_diff.days
-			seconds = last_mes_date_diff.seconds
-			hours = seconds // 3600
-			minutes = (seconds // 60) % 60
-			last_ac=last_mes_date_diff.seconds + last_mes_date_diff.days*86400
-			if days!=0: 
-				last_ac=str(days)+" days ago"
-			elif days==0:
-				if hours!=0:
-					last_ac=str(hours)+" hours ago"
-				else:
-					last_ac=str(minutes)+" minutes ago"
+			last_ac=format_date(date_str1,date_str2)
 			print(last_ac)
 			to_append["last_activity"]=last_ac
 
 			new_friend_list.append(to_append)
 		serialized=serializer.data
 		serialized["friends"]=new_friend_list
+		print(new_friend_list)
+		serialized["last_activity"]=format_date(str(datetime.datetime.now(pytz.utc)),str(obj.last_activity))
 		
 		return Response({'profile': serialized, 'user':serializeuser.data, 'flistlength':len(new_friend_list)}, status=status.HTTP_200_OK)
 

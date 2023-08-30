@@ -60,6 +60,8 @@
     border-radius: 0;
     color:white;
     min-width: 25vw;
+    max-height: 90vh;
+    overflow: auto;
   }
   .Dropdown-items-holder p{
     padding-top: 12px;

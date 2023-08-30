@@ -316,6 +316,9 @@ class CreatePrivateChat(APIView):
                 g.save()
                 g.members.add(*pk_list)
                 g.admins.add(*pk_list)
+                n=Notification(belongs_to=other_user_prof, text=f"{request.user.username} has started a chat with you.")
+                n.save()
+
 
 
 
@@ -412,13 +415,14 @@ class AddToGroup(APIView):
             Puser=Profile.objects.get(user=Iuser)
         except:
             return Response({"info":"user not found", "send":"no"})
-        if request.user.profile in group.admins.all() or group.type!="private":
+        if request.user.profile in group.admins.all() and group.type!="private":
             if Puser in group.members.all():
                 return Response({"info":"user already in group", "send":"no"}) 
             elif Puser not in request.user.profile.friends.all():
                 return Response({"info":"user not in friends", "send":"no"}) 
             else:
                 group.members.add(Puser)
+            
                 return Response({"info":"user succesfully added", "send":"yes"},status=status.HTTP_202_ACCEPTED)
         else:
             return Response({"info":"something else went wrong.", "send":"no"})
@@ -444,4 +448,13 @@ class UserNotifications(APIView):
     def get(self,request):
         all_not=Notification.objects.filter(belongs_to=request.user.profile)
         print(all_not,'all_not')
-        return Response({"all_notifications":[{"text":x.text, "date":str(x.date)[0:10]+" "+str(x.date)[11:19]} for x in all_not]})
+        return Response({"all_notifications":[{"text":x.text, "date":str(x.date)[0:10]+" "+str(x.date)[11:19], "id":x.id} for x in all_not]})
+
+class deleteNotification(APIView):
+    def post(self, request):
+        
+        n=Notification.objects.get(id=request.data["id"])
+        if n.belongs_to==request.user.profile:
+            n.delete()
+            return Response({"Notification succesfully deleted"}, status=status.HTTP_202_ACCEPTED)
+        return Response({"Error"}, status=status.HTTP_401_UNAUTHORIZED)

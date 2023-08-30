@@ -28,7 +28,7 @@ function NavBar(props) {
       return null; // Jeśli nie chcemy wyświetlać nawigacji, zwracamy null
     }
 
-
+    let currentId = -1;
     const [username, setUsername]=useState('')
     const [notifications, updateNotifications]=useState([]);
 
@@ -71,8 +71,21 @@ function NavBar(props) {
           updateNotifications(data.all_notifications)
       }))
     }
-
     
+    const notificationDelete = (e) => {
+      e.preventDefault();
+      console.log(e.target.id,"roz", e.target.value)
+      client.post("chatapp/deletenotification",{
+        "id":e.target.value
+      })
+      
+      const updatedItems = [...notifications];
+      console.log(updatedItems)
+      updatedItems.splice(e.target.id, 1);
+      console.log(updatedItems)
+      updateNotifications(updatedItems);
+  }
+  
 
 
 
@@ -94,9 +107,12 @@ function NavBar(props) {
         </Dropdown.Toggle>
 
         <Dropdown.Menu className="Dropdown-items-holder">
-          {notifications.map(item=>(
-            <div className="Noti"><p>{item.text}</p></div>
-          ))}
+          {notifications.map(item=>{
+            currentId++;
+            return(
+            <div className="Noti" value={item.id}><p>{item.text}</p><button value={item.id} id={currentId} onClick={notificationDelete}>X</button></div>)
+          }
+          )}
         </Dropdown.Menu>
       </Dropdown>
 

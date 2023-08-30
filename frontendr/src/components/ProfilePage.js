@@ -31,7 +31,7 @@ function ProfilePage(props) {
     const [isRequestedByYou, setIsRequestedByYou] = useState(false)
     const [isGroup, setIsGroup] = useState(false)
     const [groupID, setGroupId] = useState('')
-
+    const [lastActivity, setLastActivity] = useState('')
 
     useEffect(() => {
         const current_user=props.loggedUserProfile
@@ -121,7 +121,7 @@ function ProfilePage(props) {
                 setImg(imgLink)
                 setUserTrue(true)
                 setBio(data.profile.bio)
-            
+                setLastActivity(data.profile.last_activity)
                 setUserOwner(props.loggedUser.username == username_prof)
                 
                 return DB;
@@ -209,7 +209,7 @@ function ProfilePage(props) {
                                
                         )}
                         </div>
-                        <p style={{marginBottom:'4px'}}>Last time active: 6h ago</p>
+                        <p style={{marginBottom:'4px'}}>{lastActivity}</p>
                         <div style={{display:'flex', justifyContent:'flex-start', alignItems:'center', textAlign:'center'}}>
                         <p>Friends: {flistlength} - </p><a href={"/allfriends/"+username_prof} style={showStyle}>Show</a>
                         </div>

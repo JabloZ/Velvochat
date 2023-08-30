@@ -22,6 +22,23 @@ function RegisterPage(){
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     
+    function checkLoginStatus(){
+    
+      console.log('acc no')
+      return axios.get("http://127.0.0.1:8000/accounts/user").then(response => {
+        
+        console.log(response.data.logged)
+        if (response.data.logged=="yes"){
+          navigate("/")
+        }
+        }).catch(error => {
+          
+        })
+        
+  }
+  useEffect(()=>{
+      checkLoginStatus();
+  },[]) 
     function submitRegistration(e) {
         
         e.preventDefault();
