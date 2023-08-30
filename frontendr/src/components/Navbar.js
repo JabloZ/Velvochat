@@ -15,30 +15,28 @@ const client = axios.create({
 });
 
 function NavBar(props) { 
+    
     const location = useLocation();
-
-  // Lista tras, na których nie chcemy wyświetlać nawigacji
     const routesWithoutNavBar = ["/login", "/register"];
-
-  // Sprawdzanie, czy bieżąca ścieżka jest na liście tras bez nawigacji
     const shouldDisplayNavBar = !routesWithoutNavBar.includes(location.pathname);
 
     if (!shouldDisplayNavBar) {
       console.log('JAAA')
       return null; // Jeśli nie chcemy wyświetlać nawigacji, zwracamy null
     }
-
+    const navigate = useNavigate();
     let currentId = -1;
     const [username, setUsername]=useState('')
     const [notifications, updateNotifications]=useState([]);
+    const [search, setSearch] = useState('');
 
     useEffect(()=>{
-      
+     
       setUsername(props.loggedUser.username)
       getNotifications();
       },[]
     )
-    const navigate = useNavigate();
+    
     const leftstyle={
       float:"left",
       display:"flex",
@@ -49,6 +47,11 @@ function NavBar(props) {
     const minimalFont={
         fontSize:'12px',
         textAlign:'center'
+    }
+    function searchRedirect(){
+      console.log(search)
+      navigate("searchresult/"+search);
+
     }
     function submitLogout(e) {
         
@@ -95,7 +98,7 @@ function NavBar(props) {
         <a href="/" style={leftstyle} >VelvoChat</a>
       </div>
       <div className='navbar-inner-search'>
-        <input type="text" id="lname" name="lname" placeholder="Search..." /><button>→</button>
+        <input type="text" id="getsearch" name="lname" placeholder="Search..."  value={search} onChange={e => setSearch(e.target.value)}/><button onClick={searchRedirect}>→</button>
         
       </div>
       <div className='navbar-inner'>
@@ -103,7 +106,7 @@ function NavBar(props) {
         
         <Dropdown>
         <Dropdown.Toggle variant="success" id="dropdown-basic" className="dropdown-button-style">
-        🔔<p style={minimalFont}></p>
+        🔔<p style={minimalFont}>({notifications.length})</p>
         </Dropdown.Toggle>
 
         <Dropdown.Menu className="Dropdown-items-holder">

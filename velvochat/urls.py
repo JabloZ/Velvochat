@@ -38,6 +38,7 @@ urlpatterns = [
     path('allfriends/<str:username>', views.index, name='index'),
     path('creategroup', views.index, name='index'),
     path('editgroup/<id>', views.index, name='index'),
+    path('searchresult/<str:search>', views.index, name='index'),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

@@ -82,6 +82,8 @@ class AddToFriends(APIView):
             
             r = FriendsRequest(who_send=sender_profile, who_received=received_profile)
             r.save()
+            n=Notification(belongs_to=received_profile, text=f"{request.user.username} has sent you an invitation to friendslist.")
+            n.save()
             if r:
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -103,6 +105,7 @@ class ResponseToFriendsRequest(APIView):
             print('wow bedziecie znaj')
             request_processed=FriendsRequest.objects.get(id=kwargs["id"])
             print(request_processed)
+            
             if request.user.profile==request_processed.who_received:
                 
                 request.user.profile.friends.add(request_processed.who_send)
@@ -120,6 +123,8 @@ class ResponseToFriendsRequest(APIView):
                     g=GroupChat(type='private', name=request.user.username+", "+request_processed.who_send.user.username)
                     g.save()
                     g.members.add(*[request.user.profile, request_processed.who_send])
+                    n=Notification(belongs_to=request_processed.who_send, text=f"{request.user.username} accepted your friends request")
+                    n.save()
                 
                 
             else:
@@ -132,6 +137,7 @@ class deleteFriendsRequest(APIView):
         request_processed=FriendsRequest.objects.get(id=kwargs["id"])
         if request.user.profile==request_processed.who_send:
             request_processed.delete()
+            
             return Response({''}, status=status.HTTP_200_OK)
         else:
             return Response({''}, status=status.HTTP_401_UNAUTHORIZED)
@@ -350,6 +356,8 @@ class CreateGroup(APIView):
             g.save()
             g.members.add(request.user.profile)
             g.admins.add(request.user.profile)
+            n=Notification(belongs_to=request.user.profile, text=f"You have created group named {group_name}.")
+            n.save()
             
             return Response({"group":g.id},status=status.HTTP_201_CREATED)
         
@@ -360,9 +368,14 @@ class LeaveGroup(APIView):
         if group.type!="private":
             group.members.remove(request.user.profile)
             group.admins.remove(request.user.profile)
+            n=Notification(belongs_to=request.user.profile, text=f"You have left group {group.name}")
+            n.save()
+
             if len(list(group.members.all()))<1:
                 group.delete()
             return Response(status=status.HTTP_202_ACCEPTED)
+        else:
+            group.delete()
         
 class DeleteFromGroup(APIView):
     def post(self, request, *args, **kwargs):
@@ -373,6 +386,9 @@ class DeleteFromGroup(APIView):
         if group.type!="private" and (request.user.profile in group.admins.all() and profile not in group.admins.all()) or request.user.profile==group.owner:
             group.members.remove(profile)
             group.admins.remove(profile)
+            
+            n=Notification(belongs_to=profile, text=f"You have been kicked out of group {group.name} by {request.user.username}")
+            n.save()
             return Response(status=status.HTTP_202_ACCEPTED)
     
 class EditGroup(APIView):
@@ -458,3 +474,16 @@ class deleteNotification(APIView):
             n.delete()
             return Response({"Notification succesfully deleted"}, status=status.HTTP_202_ACCEPTED)
         return Response({"Error"}, status=status.HTTP_401_UNAUTHORIZED)
+
+class searchResult(APIView):
+    
+    def get(self, request, *args, **kwargs):
+        print('tutaj wgl?')
+        found_users=Account.objects.filter(username__icontains=kwargs["searched"])
+        print(found_users)
+        to_return=[]
+        for x in found_users:
+            prof=Profile.objects.get(user=x)
+            to_return.append({"username":x.username,"image":prof.image.url if prof.image else "", "last_activity":str(prof.last_activity)[0:10]+" "+str(prof.last_activity)[11:19]})
+        print(to_return, 'to z returna')
+        return Response({"results":to_return}, status=status.HTTP_200_OK)

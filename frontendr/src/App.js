@@ -19,6 +19,7 @@ import SingleChatPage from './components/SingleChatPage';
 import AllFriendsPage from './components/AllFriendsPage';
 import CreateGroupPage from './components/CreateGroupPage';
 import EditGroupPage from './components/EditGroupPage';
+import SearchResultPage from './components/searchResults';
 import NavBar from './components/Navbar';
 import axios from 'axios';
 import { useState, useEffect } from 'react';
@@ -89,6 +90,7 @@ function App(props) {
         <Route path="/allfriends/:username_prof" Component={() => (<AllFriendsPage/>)}></Route>
         <Route path="/creategroup" Component={() => (<CreateGroupPage/>)}></Route>
         <Route path="/editgroup/:chat_id" Component={() => (<EditGroupPage/>)}></Route>
+        <Route path="/searchresult/:search" Component={() => (<SearchResultPage/>)}></Route>
       </Routes>
     </Router>
 

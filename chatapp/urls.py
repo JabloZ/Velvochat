@@ -27,4 +27,5 @@ urlpatterns=[
     path('changeuserrole', views.ChangeRole.as_view(), name='changeuserrole'),
     path('allusernotifications', views.UserNotifications.as_view(), name='allusernotifications'),
     path('deletenotification', views.deleteNotification.as_view(), name='deletenotification'),
+    path('searchresults/<searched>', views.searchResult.as_view(), name='searchresults'),
 ]
