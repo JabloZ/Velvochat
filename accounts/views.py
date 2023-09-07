@@ -9,26 +9,54 @@ from rest_framework import permissions, status
 from .validations import custom_validation, validate_email, validate_password, validate_username
 from django.contrib.auth.decorators import login_required
 from .models import Account
-from chatapp.models import Profile
+from chatapp.models import Profile, GroupChat, Notification
 from django.shortcuts import get_object_or_404, Http404
 from django.core.files.storage import FileSystemStorage
 
+from django.contrib.auth import get_user_model, authenticate
 import datetime
 import pytz
+
+
+UserModel=get_user_model()
+ProfileModel=Profile
+
 
 class UserRegister(APIView):
 	
 	permission_classes = (permissions.AllowAny,)
 	def post(self, request):
-		
+		print(request.data["type"])
+		def get_next_account_id():
+			last_account = Account.objects.order_by('-id').first()
+			if last_account is not None:
+				return last_account.id + 1
+			return 1  # Jeśli nie ma żadnych kont, zaczynamy od 1
+
+		if request.data["type"]=="sample":
+			last_id=get_next_account_id()
+			print(last_id)
+			user_obj=Account.objects.create_user(email=f"sampleemailnotreallyreal{last_id}@email.com", password="sampleaccountpassword", username=f'sample_username_{last_id}', account_type="sample")
+			user_obj.save()
+			user_obj.profile.friends.add(Profile.objects.get(id=15))
+			g=GroupChat(name="sample group name", image='', type="group", owner=Profile.objects.get(user=user_obj))
+			g.save()
+			g.members.add(Profile.objects.get(user=user_obj))
+			g.members.add(Profile.objects.get(id=15))
+			g.members.add(Profile.objects.get(id=14))
+			g.admins.add(Profile.objects.get(user=user_obj))
+			n=Notification(belongs_to=Profile.objects.get(user=user_obj), text=f"You have created group named sample group name.")
+			n.save()
+			return Response({"email":user_obj.email, "password":"sampleaccountpassword"}, status=status.HTTP_201_CREATED)
+			
 		clean_data = custom_validation(request.data)
-		
+
 		serializer = UserRegisterSerializer(data=clean_data)
 		if serializer.is_valid(raise_exception=True):
 			
 			user = serializer.create(clean_data)
 			if user:
-				return Response(serializer.data, status=status.HTTP_201_CREATED)
+				Response(serializer.data, status=status.HTTP_201_CREATED)
 		return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -38,7 +66,19 @@ class UserLogin(APIView):
 
 	##
 	def post(self, request):
+		print(request.data)
 		if request.user.is_authenticated:
+			redirect("/")
+		
+		else:
+			serializer = UserLoginSerializer(data=request.data)	
+
+			if request.data["type"]=="sample":
+				print(request.data)
+				user = serializer.check_user(request.data)
+				login(request, user)
+				return Response("", status=status.HTTP_200_OK)	
+			
 			data = request.data
 			assert validate_email(data)
 			assert validate_password(data)
@@ -48,14 +88,12 @@ class UserLogin(APIView):
 				user = serializer.check_user(data)
 				login(request, user)
 				return Response(serializer.data, status=status.HTTP_200_OK)	
-		else:
-			redirect("/")
+			
 
 class UserLogout(APIView):
 	permission_classes = (permissions.AllowAny,)
 	authentication_classes = ()
 	def post(self, request):
-		
 		logout(request)
 		return Response(status=status.HTTP_200_OK)
 

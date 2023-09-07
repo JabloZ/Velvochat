@@ -48,7 +48,8 @@ function RegisterPage(){
           {
             email: email,
             username: username,
-            password: password
+            password: password,
+            type: "normal"
           }
         ).then(function(res) {
           client.post(

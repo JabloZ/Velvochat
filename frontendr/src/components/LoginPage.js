@@ -17,6 +17,32 @@ function LoginPage(){
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    function sampleAccount(){
+             
+        client.post(
+            "accounts/register",
+            {
+              email: '',
+              username: '',
+              password: '',
+              type: "sample"
+            }
+          ).then(function(res) {
+            client.post(
+              "accounts/login",
+              {
+                email: res.data.email,
+                password: res.data.password,
+                type:"sample"
+              }
+            ).then(function(res) {
+              
+              navigate("/");
+              
+            });
+          });
+        
+    }
     function checkLoginStatus(){
     
         console.log('acc no')
@@ -42,7 +68,8 @@ function LoginPage(){
         "accounts/login",
         {
           email: email,
-          password: password
+          password: password,
+          type:"normal"
         }
         ).then(function(res) {
             navigate("/");
@@ -73,7 +100,7 @@ function LoginPage(){
             </form>
            
             <p>Don't have an account? <a href='/register'>Signup</a></p>
-            <a href='#' className="sample-acc">Sample account</a>
+            <button className="sample-acc" onClick={sampleAccount}>Sample account</button>
         </div>
     </div>
     
