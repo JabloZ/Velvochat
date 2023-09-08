@@ -7,15 +7,16 @@ Main interface will look similar to this one:
 //readme in progress
 
 # Searching for other users
-To search for other users profiles input username to search in searchbar, here ![image](https://github.com/JabloZ/Velvochat/assets/109240918/c81fa673-540c-4d6c-a3c1-1aa0f54934ef) and then click button on the right side of searchbar
+To search for other users profiles input username to search in searchbar, here ![image](https://github.com/JabloZ/Velvochat/assets/109240918/1bdb55c7-3085-4e1a-8551-c603b4c14745) and then click button on the right side of searchbar
 Potential search results will look like this: ![image](https://github.com/JabloZ/Velvochat/assets/109240918/311c6287-65d5-45ec-add8-61de17fd3737)
 
-#User profile
+# User profile
 Exemplary profile: ![image](https://github.com/JabloZ/Velvochat/assets/109240918/2c14b5f8-b49a-4d84-a28f-90382adac06b)
 <h3>Editing:</h3>
-  click Edit profile on your profile to edit it. ![image](https://github.com/JabloZ/Velvochat/assets/109240918/222492b8-9d67-4ae2-b582-3f3dff1fe81a)
+  click Edit profile on your profile to edit it. ![image](https://github.com/JabloZ/Velvochat/assets/109240918/dd280697-03a1-497a-9deb-dd16a6a99676)
 
-#Friend interactions
+
+# Friend interactions
 <h3>Adding to friends</h3>
   Open another user profile and click add to friends, and then user will receive your request. User can either accept or decline your offer ![image](https://github.com/JabloZ/Velvochat/assets/109240918/b619bb6e-1fb8-472b-a0a1-a438fbdb0676)
 <h3>Removing from friends</h3>
@@ -23,7 +24,7 @@ Exemplary profile: ![image](https://github.com/JabloZ/Velvochat/assets/109240918
 <h3>On friends accepted</h3>
   If friends request get accepted, private chat between two users gets created.
 
-#Chatting
+# Chatting
 ![image](https://github.com/JabloZ/Velvochat/assets/109240918/e3250169-1963-4907-a925-5f68b35f50c0)
 
 <h3>Private chats</h3>
