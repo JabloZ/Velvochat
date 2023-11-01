@@ -4,16 +4,18 @@ Velvo chat is a chat application.
 Technologies used: React, Django (with django-rest framework), html, css, js 
 #Main interface
 Main interface will look similar to this one:
-![image](https://github.com/JabloZ/Velvochat/assets/109240918/5edeba64-0b9a-4d69-8bc3-22ecc4ad5701)
+![image](https://github.com/JabloZ/Velvochat/assets/109240918/f507dc8c-0e9a-44c0-9f70-b05428b93e74)
 
 //readme in progress
 
 # Searching for other users
-To search for other users profiles input username to search in searchbar, here ![image](https://github.com/JabloZ/Velvochat/assets/109240918/1bdb55c7-3085-4e1a-8551-c603b4c14745) and then click button on the right side of searchbar
-Potential search results will look like this: ![image](https://github.com/JabloZ/Velvochat/assets/109240918/311c6287-65d5-45ec-add8-61de17fd3737)
+To search for other users profiles input username to search in searchbar, here ![image](https://github.com/JabloZ/Velvochat/assets/109240918/b019ca54-a417-4d3f-936d-d8ac409b4c63) and then click button on the right side of searchbar
+Potential search results will look like this: ![image](https://github.com/JabloZ/Velvochat/assets/109240918/8cc38d06-bd1f-4bb8-a9c6-0309fe465e44)
+
 
 # User profile
-Exemplary profile: ![image](https://github.com/JabloZ/Velvochat/assets/109240918/2c14b5f8-b49a-4d84-a28f-90382adac06b)
+Exemplary profile: ![image](https://github.com/JabloZ/Velvochat/assets/109240918/2e8bf487-828b-4fe9-86b1-03f9988f459d)
+
 <h3>Editing:</h3>
   click Edit profile on your profile to edit it. ![image](https://github.com/JabloZ/Velvochat/assets/109240918/dd280697-03a1-497a-9deb-dd16a6a99676)
 
@@ -27,7 +29,7 @@ Exemplary profile: ![image](https://github.com/JabloZ/Velvochat/assets/109240918
   If friends request get accepted, private chat between two users gets created.
 
 # Chatting
-![image](https://github.com/JabloZ/Velvochat/assets/109240918/e3250169-1963-4907-a925-5f68b35f50c0)
+![image](https://github.com/JabloZ/Velvochat/assets/109240918/a0641075-c76d-4a6c-bfd4-7d2fb07c3a98)
 
 <h3>Private chats</h3>
 
